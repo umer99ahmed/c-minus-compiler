@@ -14,8 +14,8 @@ Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Sc
 %.class: %.java
 	$(JAVAC) $(CLASSPATH) $^
 
-Lexer.java: tiny.flex
-	$(JFLEX) tiny.flex
+Lexer.java: cm.flex
+	$(JFLEX) cm.flex
 
 parser.java: tiny.cup
 	#$(CUP) -dump -expect 3 tiny.cup

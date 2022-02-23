@@ -2,7 +2,7 @@
   Created by: Fei Song
   File Name: Main.java
   To Build: 
-  After the scanner, tiny.flex, and the parser, tiny.cup, have been created.
+  After the scanner cm.flex, and the parser, tiny.cup, have been created.
     javac Main.java
   
   To Run: 

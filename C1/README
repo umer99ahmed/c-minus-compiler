@@ -9,7 +9,9 @@ server and the commented settings are for my MacBook.
 generate an executable program called "Main".
 
   To test source code like "fac.tiny", type 
+  Scanner:
     "java -cp /usr/share/java/cup.jar:. Scanner < fac.cm"
+  Parser?
     "java -cp /usr/share/java/cup.jar:. Main fac.tiny" 
 
 and the syntax tree will be displayed on the screen.
