@@ -71,11 +71,11 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
+terminal ELSE, IF, INT, RETURN, VOID, WHILE;
 terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI;
 terminal ID, NUM;
 terminal ERROR;
-terminal ELSE, IF, INT, RETURN, VOID, WHILE;
-
+   
 non terminal program;
 
 /* ----------------------------Grammar Section-------------------- */
