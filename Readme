@@ -1,5 +1,6 @@
 CIS*4030 Checkpoint 1
 Numan Mir
+Umer Ahmed
 
 In this package, we provide a SampleParser that shows you how to build a scanner
 and a parser together with JFlex and CUP.  It's intended to shorten your learning
