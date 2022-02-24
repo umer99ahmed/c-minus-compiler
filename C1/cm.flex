@@ -85,8 +85,10 @@ number = {digit}+
 /* A identifier integer is a word beginning a letter between A and
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
-letter = [a-zA-Z]
 identifier = [_a-zA-Z][_a-zA-Z0-9]*
+
+comment = "/*"((\*+[^/*])|([^*]))*\**"*/"
+
    
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -124,5 +126,6 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 {number}           { return symbol(sym.NUM, yytext()); }
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
-"{"[^\}]*"}"       { /* skip comments */ }
+{comment}          { /* skip comments */ }
 .                  { return symbol(sym.ERROR); }
+

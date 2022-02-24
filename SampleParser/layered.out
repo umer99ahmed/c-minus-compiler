@@ -1,0 +1,26 @@
+The abstract syntax tree is:
+ReadExp:
+    VarExp: x
+IfExp:
+    OpExp: > 
+        VarExp: x
+        IntExp: 0
+    AssignExp:
+        VarExp: fact
+        IntExp: 1
+    RepeatExp:
+        AssignExp:
+            VarExp: fact
+            OpExp: * 
+                VarExp: fact
+                VarExp: x
+        AssignExp:
+            VarExp: x
+            OpExp: - 
+                VarExp: x
+                IntExp: 1
+        OpExp: = 
+            VarExp: x
+            IntExp: 0
+    WriteExp:
+        VarExp: fact
