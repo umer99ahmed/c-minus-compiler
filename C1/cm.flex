@@ -102,17 +102,25 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-":="               { return symbol(sym.ASSIGN); }
-"="                { return symbol(sym.EQ); }
-"<"                { return symbol(sym.LT); }
-">"                { return symbol(sym.GT); }
 "+"                { return symbol(sym.PLUS); }
 "-"                { return symbol(sym.MINUS); }
 "*"                { return symbol(sym.TIMES); }
 "/"                { return symbol(sym.OVER); }
+"<"                { return symbol(sym.LT); }
+"<="               { return symbol(sym.LTEQ); }
+">"                { return symbol(sym.GT); }
+">="               { return symbol(sym.GTEQ); }
+"=="               { return symbol(sym.EQ); }
+"!="               { return symbol(sym.NOTEQ); }
+"="                { return symbol(sym.ASSIGN); }
+";"                { return symbol(sym.SEMI); }
+","                { return symbol(sym.COMMA); }
 "("                { return symbol(sym.LPAREN); }
 ")"                { return symbol(sym.RPAREN); }
-";"                { return symbol(sym.SEMI); }
+"["                { return symbol(sym.LSQUAREB); }
+"]"                { return symbol(sym.RSQUAREB); }
+"{"                { return symbol(sym.LCURLYB); }
+"}"                { return symbol(sym.RCURLYB); }
 {number}           { return symbol(sym.NUM, yytext()); }
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
