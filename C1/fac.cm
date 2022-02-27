@@ -6,7 +6,7 @@ void main(void) {
   fac = 1;
 
   while (x > 1) {
-    fac = fac * x;
+    fac = fac + x;
     x = x - 1;
   } 
 
