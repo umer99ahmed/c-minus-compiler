@@ -87,7 +87,12 @@ non terminal relop, addop, mulop;
 non terminal term, factor, call;
 non terminal args, arg_list;
 
-
+/*
+non terminal Exp program1;
+non terminal ExpList program, stmt_seq;
+non terminal Exp stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
+non terminal Exp exp, simple_exp, term, factor;   
+*/
 /* ----------------------------Grammar Section-------------------- */
 
 program	            ::= declaration_list
