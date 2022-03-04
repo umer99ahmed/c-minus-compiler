@@ -1,6 +1,6 @@
 package absyn;
 
-public class NameTy extends absyn {
+public class NameTy extends Absyn {
   public final static int INT = 0;
   public final static int VOID = 1;
 
@@ -8,7 +8,7 @@ public class NameTy extends absyn {
   public int op;
   public Exp right;
 
-  public OpExp( int row, int col, Exp left, int op, Exp right ) {
+  public NameTy( int row, int col, Exp left, int op, Exp right ) {
     this.row = row;
     this.col = col;
     this.left = left;

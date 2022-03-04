@@ -76,7 +76,9 @@ terminal PLUS, MINUS, TIMES, OVER, LT, LTEQ, GT, GTEQ, EQ, NOTEQ, ASSIGN, SEMI, 
 terminal ID, NUM;
 terminal ERROR;
 
-non terminal program, declaration_list;
+non terminal program1;
+non terminal program;
+non terminal declaration_list;
 non terminal declaration, var_declaration, fun_declaration;
 non terminal type_specifier, params, compound_stmt;
 non terminal param_list, param;
@@ -93,6 +95,12 @@ non terminal stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
 non terminal exp, simple_exp, term, factor;   
 */
 /* ----------------------------Grammar Section-------------------- */
+start with program;
+
+program1     ::= expression:e 
+                 {: RESULT = e; :}
+               ;
+
 /* 1-15 */
 program	            ::= declaration_list
                      ;
