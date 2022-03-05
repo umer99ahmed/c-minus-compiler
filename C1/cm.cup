@@ -73,12 +73,14 @@ parser code {:
    
 terminal ELSE, IF, INT, RETURN, VOID, WHILE;
 terminal PLUS, MINUS, TIMES, OVER, LT, LTEQ, GT, GTEQ, EQ, NOTEQ, ASSIGN, SEMI, COMMA, LPAREN, RPAREN, LSQUAREB, RSQUAREB, LCURLYB, RCURLYB;
-terminal String ID, NUM;
+terminal String ID;
+terminal String NUM;
 terminal ERROR;
 
 non terminal program1;
 non terminal VarExp var;
-non terminal Exp expression, simple_expression;
+non terminal Exp expression, simple_expression, additive_expression, term, factor, call;
+non terminal ExpList args, arg_list;
 non terminal program;
 non terminal declaration_list;
 non terminal declaration, var_declaration, fun_declaration;
@@ -86,10 +88,7 @@ non terminal type_specifier, params, compound_stmt;
 non terminal param_list, param;
 non terminal local_declarations, statememt_list, statement;
 non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt;
-non terminal additive_expression;
 non terminal relop, addop, mulop;
-non terminal term, factor, call;
-non terminal args, arg_list;
 
 /*
 non terminal program, stmt_seq;
@@ -102,7 +101,6 @@ start with program1;
 program1     ::= expression:v 
                  {: RESULT = v; :}
                ;
-
 
 
 /* 1-15 */
@@ -175,20 +173,22 @@ return_stmt          ::= RETURN expression SEMI
                      ;
 
 expression           ::= var:v ASSIGN expression:e
-                          {: RESULT = new AssignExp(vleft, vright, v, e); :}
-                     | simple_expression:s
+                        {: RESULT = new AssignExp(vleft, vright, v, e); :}
+                     | simple_expression:s  
+                        {: RESULT = s; :}
                      ;
 
 var                  ::= ID:i
-                          {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
+                        {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
                      | ID:i LSQUAREB expression:e RSQUAREB
-                          {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
+                        {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
                      ;
 
-simple_expression    ::= additive_expression relop additive_expression
-                     | additive_expression
+simple_expression    ::= additive_expression LTEQ additive_expression
+                     | additive_expression:a
+                        {: RESULT = a; :}
                      ;
-
+/*
 relop                ::= LTEQ
                      | LT
                      | GT
@@ -196,94 +196,63 @@ relop                ::= LTEQ
                      | EQ
                      | NOTEQ
                      ;
+*/
 
-additive_expression  ::= additive_expression addop term
-                     | term
+additive_expression  ::= additive_expression:a PLUS term:t
+                        {: RESULT = new OpExp(aleft, aright, a, OpExp.PLUS, t); :}
+                     | additive_expression:a MINUS term:t
+                        {: RESULT = new OpExp(aleft, aright, a, OpExp.MINUS, t); :}
+                     | term:t
+                        {: RESULT = t; :}
                      ;
-
+/*
 addop                ::= PLUS
                      | MINUS
                      ;
-
-term                 ::= term mulop factor
-                     | factor
+*/
+term                 ::= term:t TIMES factor:f
+                        {: RESULT = new OpExp(tleft, tright, t, OpExp.TIMES, f); :}
+                     | term:t OVER factor:f
+                        {: RESULT = new OpExp(tleft, tright, t, OpExp.OVER, f); :}
+                     | factor:f
+                        {: RESULT = f; :}
                      ;
-
+/*
 mulop                ::= TIMES
                      | OVER
                      ;
-
-factor               ::= LPAREN expression RPAREN
-                     | var
-                     | call
-                     | NUM
-                     ;
-
-call                 ::= ID LPAREN args RPAREN
-                     ;
-
-args                 ::= arg_list
-                     |
-                     ;
-
-arg_list             ::= arg_list COMMA expression
-                     | expression
-                     ;
-
-/* ----------------------------smaple parse bellow-------------------- */
-/*
-start with program;
-
-
-program	     ::= stmt_seq
-               ;
-
-stmt_seq     ::= stmt_seq SEMI stmt 
-               | stmt
-               | error SEMI stmt
-               ;
-
-stmt         ::= if_stmt
-               | repeat_stmt
-               | assign_stmt
-               | read_stmt
-               | write_stmt
-               ;
-
-if_stmt      ::= IF exp THEN stmt_seq END
-               | IF exp THEN stmt_seq ELSE stmt_seq END
-               ;
-
-repeat_stmt  ::= REPEAT stmt_seq UNTIL exp
-               ;
-
-assign_stmt  ::= ID ASSIGN exp
-               ;
-
-read_stmt    ::= READ ID
-               ;
-
-write_stmt   ::= WRITE exp
-               ;
-
-exp          ::= simple_exp LT simple_exp
-               | simple_exp GT simple_exp
-               | simple_exp EQ simple_exp
-               | simple_exp
-               ;
-
-simple_exp   ::= simple_exp PLUS term
-               | simple_exp MINUS term
-               | term
-               ;
-
-term         ::= term TIMES factor
-               | term OVER factor
-               | factor
-               ;
-
-factor       ::= LPAREN exp RPAREN
-               | NUM
-               | ID
-               ;
 */
+factor               ::= LPAREN expression:e RPAREN
+                        {: RESULT = e; :}
+                     | var:v
+                        {: RESULT = v; :}
+                     | call:c
+                        {: RESULT = c; :}
+                     | NUM:n
+                        {: RESULT = new IntExp(nleft, nright, Integer.parseInt(n)); :}
+                     ;
+
+call                 ::= ID:i LPAREN args:a RPAREN
+                        {: RESULT = new CallExp(ileft, iright, i, a); :}
+                     ;
+
+args                 ::= arg_list:a
+                        {: RESULT = a; :}
+                     |  {: RESULT = new ExpList( new NilExp(0, 0), null); :}
+
+                     ;
+
+arg_list             ::= arg_list:a COMMA expression:e
+                        {: ExpList t = a;
+                           while(t.tail != null)
+                              t = t.tail;
+                           t.tail = new ExpList(e, null);
+                           RESULT = a;
+                        :}
+                     | expression:e
+                        {: RESULT = new ExpList(e, null); :}
+                     ;
+
+              
+            
+      

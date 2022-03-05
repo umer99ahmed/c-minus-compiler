@@ -21,6 +21,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
   
   public void visit( CallExp exp, int level ){
+    indent( level );
+    System.out.println( "CallExp: " + exp.func);
+    level++;
+    exp.args.accept( this, level );
     
   }
 
@@ -47,12 +51,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
     
   }
 
-  public void visit( IndexVar var, int level ){
-    
-  }
-
   public void visit( IntExp exp, int level ){
-    
+    indent( level );
+    System.out.println( "IntExp: " + exp.value ); 
   }
 
   public void visit( NameTy typ, int level ){
@@ -60,11 +61,41 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
   public void visit( NilExp exp, int level ){
-    
+    indent( level );
+    System.out.println( "NilExp: Null"); 
   }
 
-  public void visit( OpExp exp, int level ){
-    
+  public void visit( OpExp exp, int level ) {
+    indent( level );
+    System.out.print( "OpExp:" ); 
+    switch( exp.op ) {
+      case OpExp.PLUS:
+        System.out.println( " + " );
+        break;
+      case OpExp.MINUS:
+        System.out.println( " - " );
+        break;
+      case OpExp.TIMES:
+        System.out.println( " * " );
+        break;
+      case OpExp.OVER:
+        System.out.println( " / " );
+        break;
+      // case OpExp.EQ:
+      //   System.out.println( " = " );
+      //   break;
+      // case OpExp.LT:
+      //   System.out.println( " < " );
+      //   break;
+      // case OpExp.GT:
+      //   System.out.println( " > " );
+      //   break;
+      default:
+        System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
+    }
+    level++;
+    exp.left.accept( this, level );
+    exp.right.accept( this, level );
   }
 
   public void visit( ReturnExp exp, int level ){
@@ -79,7 +110,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "SimpleVar: "+ var.name);
   }
-
+  public void visit( IndexVar var, int level ){
+    indent( level );
+    System.out.println( "IndexVar: "+ var.name);
+    level++;
+    var.index.accept( this, level );
+  }
   public void visit( VarDecList var, int level ){
     
   }
