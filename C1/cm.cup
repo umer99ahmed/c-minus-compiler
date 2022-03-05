@@ -73,10 +73,12 @@ parser code {:
    
 terminal ELSE, IF, INT, RETURN, VOID, WHILE;
 terminal PLUS, MINUS, TIMES, OVER, LT, LTEQ, GT, GTEQ, EQ, NOTEQ, ASSIGN, SEMI, COMMA, LPAREN, RPAREN, LSQUAREB, RSQUAREB, LCURLYB, RCURLYB;
-terminal ID, NUM;
+terminal String ID, NUM;
 terminal ERROR;
 
 non terminal program1;
+non terminal VarExp var;
+non terminal Exp expression, simple_expression;
 non terminal program;
 non terminal declaration_list;
 non terminal declaration, var_declaration, fun_declaration;
@@ -84,7 +86,7 @@ non terminal type_specifier, params, compound_stmt;
 non terminal param_list, param;
 non terminal local_declarations, statememt_list, statement;
 non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt;
-non terminal expression, var, simple_expression, additive_expression;
+non terminal additive_expression;
 non terminal relop, addop, mulop;
 non terminal term, factor, call;
 non terminal args, arg_list;
@@ -95,11 +97,13 @@ non terminal stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
 non terminal exp, simple_exp, term, factor;   
 */
 /* ----------------------------Grammar Section-------------------- */
-start with program;
+start with program1;
 
-program1     ::= expression:e 
-                 {: RESULT = e; :}
+program1     ::= expression:v 
+                 {: RESULT = v; :}
                ;
+
+
 
 /* 1-15 */
 program	            ::= declaration_list
@@ -170,12 +174,15 @@ return_stmt          ::= RETURN expression SEMI
                      | RETURN SEMI
                      ;
 
-expression           ::= var ASSIGN expression
-                     | simple_expression
+expression           ::= var:v ASSIGN expression:e
+                          {: RESULT = new AssignExp(vleft, vright, v, e); :}
+                     | simple_expression:s
                      ;
-                     
-var                  ::= ID
-                     | ID LSQUAREB expression RSQUAREB
+
+var                  ::= ID:i
+                          {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
+                     | ID:i LSQUAREB expression:e RSQUAREB
+                          {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
                      ;
 
 simple_expression    ::= additive_expression relop additive_expression

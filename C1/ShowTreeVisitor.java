@@ -12,10 +12,14 @@ public class ShowTreeVisitor implements AbsynVisitor {
     
   }
 
-  public void visit( AssignExp exp, int level ){
-
+  public void visit( AssignExp exp, int level ) {
+    indent( level );
+    System.out.println( "AssignExp:" );
+    level++;
+    exp.lhs.accept( this, level );
+    exp.rhs.accept( this, level );
   }
-
+  
   public void visit( CallExp exp, int level ){
     
   }
@@ -72,15 +76,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
   public void visit( SimpleVar var, int level ){
-
+    indent( level );
+    System.out.println( "SimpleVar: "+ var.name);
   }
 
   public void visit( VarDecList var, int level ){
     
   }
 
-  public void visit( VarExp exp, int level ){
-
+  public void visit( VarExp exp, int level ) {
+    indent( level );
+    System.out.println( "VarExp: ");
+    level++;
+    exp.variable.accept(this, level);
   }
 
   public void visit( WhileExp exp, int level ){

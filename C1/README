@@ -12,7 +12,7 @@ generate an executable program called "Main".
   Scanner:
     "java -cp /usr/share/java/cup.jar:. Scanner < fac.cm"
   Parser?
-    "java -cp /usr/share/java/cup.jar:. Main fac.tiny" 
+    "java -cp /usr/share/java/cup.jar:. Main fac.cm" 
 
 
 and the syntax tree will be displayed on the screen.
