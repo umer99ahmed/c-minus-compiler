@@ -1,1 +1,7 @@
-hi(hello, 1, 2)
+while (x > 1) {
+    fac = fac * x;
+    x = x - 1;
+  } 
+
+if (9 < 10) x = 1;
+else x = 2;

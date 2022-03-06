@@ -4,16 +4,12 @@ public class NameTy extends Absyn {
   public final static int INT = 0;
   public final static int VOID = 1;
 
-  public Exp left;
-  public int op;
-  public Exp right;
+  public int type;
 
-  public NameTy( int row, int col, Exp left, int op, Exp right ) {
+  public NameTy( int row, int col, int type ) {
     this.row = row;
     this.col = col;
-    this.left = left;
-    this.op = op;
-    this.right = right;
+    this.type = type;
   }
 
   public void accept( AbsynVisitor visitor, int level ) {

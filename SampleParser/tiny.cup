@@ -83,7 +83,7 @@ non terminal Exp exp, simple_exp, term, factor;
 
 /* ----------------------------Grammar Section-------------------- */
    
-start with program1;
+start with program;
 
 program1     ::= exp:e 
                  {: RESULT = e; :}
