@@ -184,7 +184,18 @@ var                  ::= ID:i
                         {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
                      ;
 
-simple_expression    ::= additive_expression LTEQ additive_expression
+simple_expression    ::= additive_expression:a1 LTEQ additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.LTEQ, a2); :}
+                     |   additive_expression:a1 LT additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.LT, a2); :}
+                     |   additive_expression:a1 GT additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.GT, a2); :}
+                     |   additive_expression:a1 GTEQ additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.GTEQ, a2); :}
+                     |   additive_expression:a1 EQ additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.EQ, a2); :}
+                     |   additive_expression:a1 NOTEQ additive_expression:a2
+                        {: RESULT = new OpExp(a1left, a1right, a1, OpExp.NOTEQ, a2); :}
                      | additive_expression:a
                         {: RESULT = a; :}
                      ;

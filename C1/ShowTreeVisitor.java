@@ -80,16 +80,25 @@ public class ShowTreeVisitor implements AbsynVisitor {
         break;
       case OpExp.OVER:
         System.out.println( " / " );
+        break;      
+      case OpExp.LTEQ:
+        System.out.println( " <= " );
         break;
-      // case OpExp.EQ:
-      //   System.out.println( " = " );
-      //   break;
-      // case OpExp.LT:
-      //   System.out.println( " < " );
-      //   break;
-      // case OpExp.GT:
-      //   System.out.println( " > " );
-      //   break;
+      case OpExp.GTEQ:
+        System.out.println( " >= " );
+        break;
+      case OpExp.EQ:
+        System.out.println( " == " );
+        break;
+      case OpExp.NOTEQ:
+        System.out.println( " != " );
+        break;
+      case OpExp.LT:
+        System.out.println( " < " );
+        break;
+      case OpExp.GT:
+        System.out.println( " > " );
+        break;
       default:
         System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
