@@ -913,7 +913,7 @@ class CUP$parser$actions {
           case 58: // args ::= 
             {
               ExpList RESULT =null;
-		 RESULT = new ExpList( new NilExp(0, 0), null); 
+
               CUP$parser$result = parser.getSymbolFactory().newSymbol("args",8, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

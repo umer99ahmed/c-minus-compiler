@@ -24,7 +24,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "CallExp: " + exp.func);
     level++;
-    exp.args.accept( this, level );
+    if(exp.args != null){
+      exp.args.accept( this, level );
+    }
     
   }
 
@@ -62,7 +64,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit( NilExp exp, int level ){
     indent( level );
-    System.out.println( "NilExp: Null"); 
+    System.out.println( "NilExp: "); 
   }
 
   public void visit( OpExp exp, int level ) {

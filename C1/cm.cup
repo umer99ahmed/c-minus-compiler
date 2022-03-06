@@ -249,7 +249,7 @@ call                 ::= ID:i LPAREN args:a RPAREN
 
 args                 ::= arg_list:a
                         {: RESULT = a; :}
-                     |  {: RESULT = new ExpList( new NilExp(0, 0), null); :}
+                     |  
 
                      ;
 
