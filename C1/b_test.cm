@@ -1,7 +1,14 @@
-while (x > 1) {
-    fac = fac * x;
-    x = x - 1;
-  } 
+/* A program to perform Euclid's 
+   algorithm to compute a gcd */
 
-if (9 < 10) x = 1;
-else x = 2;
+int gcd(int u, int v) {
+  if (v == 0) return u;
+  else return v;
+}
+
+void main(void) {
+  int x; int y;
+  x = input();
+  y = input();
+  output(gcd(x, y));
+}

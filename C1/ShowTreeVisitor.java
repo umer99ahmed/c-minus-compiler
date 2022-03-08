@@ -35,8 +35,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   }
 
-  public void visit( DecList dec, int level ){
-    
+  public void visit( DecList decList, int level ){
+    while( decList != null ) {
+      if(decList.head != null){
+        decList.head.accept( this, level );
+      }
+      decList = decList.tail;
+    } 
   }
 
   public void visit( ExpList expList, int level ){
@@ -49,7 +54,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
   public void visit( FunctionDec dec, int level ){
+    indent( level );
+    System.out.println( "FunctionDec: " + dec.func );
+    level++;
     
+    dec.result.accept( this, level );
+    dec.params.accept( this, level );
+    dec.body.accept( this, level );
   }
 
   public void visit( IfExp exp, int level ){
@@ -153,7 +164,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println( "ArrayDec: "+ dec.name);
     level++;
     dec.typ.accept( this, level );
-    dec.size.accept( this, level );
+    if(dec.size != null){
+      dec.size.accept( this, level );
+    }
   }
 
 

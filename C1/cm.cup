@@ -77,49 +77,52 @@ terminal String ID;
 terminal String NUM;
 terminal ERROR;
 
-non terminal program1;
 non terminal VarExp var;
-non terminal Exp statement, return_stmt, selection_stmt, iteration_stmt, compound_stmt;
-non terminal Exp expression, expression_stmt, simple_expression, additive_expression, term, factor, call; 
 non terminal ExpList args, arg_list, statement_list;
-non terminal VarDecList local_declarations;
-non terminal VarDec var_declaration;
+non terminal Exp statement, return_stmt, selection_stmt, iteration_stmt;
+non terminal CompoundExp compound_stmt;
+non terminal Exp expression, expression_stmt, simple_expression, additive_expression, term, factor, call; 
+non terminal Dec declaration;
+non terminal DecList declaration_list, program;
+non terminal FunctionDec fun_declaration;
+non terminal VarDecList local_declarations, params, param_list;
+non terminal VarDec var_declaration, param;
 non terminal NameTy type_specifier;
-non terminal program;
-non terminal declaration_list;
-non terminal declaration, fun_declaration;
-non terminal params;
-non terminal param_list, param;
+
 non terminal relop, addop, mulop;
 
-/*
-non terminal program, stmt_seq;
-non terminal stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
-non terminal exp, simple_exp, term, factor;   
-*/
+precedence nonassoc EQ, NOTEQ, LT, LTEQ, GT, GTEQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, OVER;
+
 /* ----------------------------Grammar Section-------------------- */
-start with program1;
+start with program;
 
-program1     ::= statement_list:v 
-                 {: RESULT = v; :}
-               ;
-
-/* 1-15 */
-program	            ::= declaration_list
+program	            ::= declaration_list:d
+                        {: RESULT = d; :}
                      ;
 
-declaration_list     ::= declaration_list declaration 
-                     | declaration
+declaration_list     ::= declaration_list:d1 declaration:d2 
+                        {: DecList t = d1;
+                           while(t.tail != null)
+                              t = t.tail;
+                           t.tail = new DecList(d2, null);
+                           RESULT = d1;
+                        :}
+                     | declaration:d
+                        {: RESULT = new DecList(d, null); :}
                      ;
                      
-declaration          ::= var_declaration 
-                     | fun_declaration
+declaration          ::= var_declaration:v
+                        {: RESULT = v; :}
+                     | fun_declaration:f
+                        {: RESULT = f; :}
                      ;
 
 var_declaration      ::= type_specifier:t ID:i SEMI 
                         {: RESULT = new SimpleDec(tleft, tright, t, i); :}
                      | type_specifier:t ID:i LSQUAREB NUM:n RSQUAREB SEMI
-                        {: RESULT = new ArrayDec(tleft, tright, t, i,  new IntExp(nleft, nright, Integer.parseInt(n)) ); :}
+                        {: RESULT = new ArrayDec(tleft, tright, t, i,  new IntExp(nleft, nright, Integer.parseInt(n))); :}
                      ;
 
 type_specifier       ::= INT:i
@@ -128,19 +131,31 @@ type_specifier       ::= INT:i
                         {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
                      ;
 
-fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
+fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
+                     {: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
                      ;
 
-params               ::= param_list 
+params               ::= param_list:p
+                        {: RESULT = p; :}
                      | VOID
+                        {: RESULT = new VarDecList(null, null); :} //does NilExp make sense here?
                      ;
 
-param_list           ::= param_list COMMA param 
-                     | param
+param_list           ::= param_list:p1 COMMA param:p2
+                        {: VarDecList t = p1;
+                           while(t.tail != null)
+                              t = t.tail;
+                           t.tail = new VarDecList(p2, null);
+                           RESULT = p1;
+                        :}
+                     | param:p
+                        {: RESULT = new VarDecList(p, null); :}
                      ;
 
-param                ::= type_specifier ID 
-                     | type_specifier ID LSQUAREB RSQUAREB
+param                ::= type_specifier:t ID:i 
+                        {: RESULT = new SimpleDec(tleft, tright, t, i); :}
+                     | type_specifier:t ID:i LSQUAREB RSQUAREB
+                        {: RESULT = new ArrayDec(tleft, tright, t, i,  null); :}
                      ;
 
 compound_stmt        ::= LCURLYB:lcb local_declarations:l statement_list:s RCURLYB
@@ -206,66 +221,27 @@ return_stmt          ::= RETURN:r expression:e SEMI
 
 expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new AssignExp(vleft, vright, v, e); :}
-                     | simple_expression:s  
-                        {: RESULT = s; :}
-                     ;
-
-var                  ::= ID:i
-                        {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
-                     | ID:i LSQUAREB expression:e RSQUAREB
-                        {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
-                     ;
-
-simple_expression    ::= additive_expression:a1 LTEQ additive_expression:a2
+                     |  expression:a1 LTEQ expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.LTEQ, a2); :}
-                     |   additive_expression:a1 LT additive_expression:a2
+                     |   expression:a1 LT expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.LT, a2); :}
-                     |   additive_expression:a1 GT additive_expression:a2
+                     |   expression:a1 GT expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.GT, a2); :}
-                     |   additive_expression:a1 GTEQ additive_expression:a2
+                     |   expression:a1 GTEQ expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.GTEQ, a2); :}
-                     |   additive_expression:a1 EQ additive_expression:a2
+                     |   expression:a1 EQ expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.EQ, a2); :}
-                     |   additive_expression:a1 NOTEQ additive_expression:a2
+                     |   expression:a1 NOTEQ expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.NOTEQ, a2); :}
-                     | additive_expression:a
-                        {: RESULT = a; :}
-                     ;
-/*
-relop                ::= LTEQ
-                     | LT
-                     | GT
-                     | GTEQ
-                     | EQ
-                     | NOTEQ
-                     ;
-*/
-
-additive_expression  ::= additive_expression:a PLUS term:t
+                     |  expression:a PLUS expression:t
                         {: RESULT = new OpExp(aleft, aright, a, OpExp.PLUS, t); :}
-                     | additive_expression:a MINUS term:t
+                     | expression:a MINUS expression:t
                         {: RESULT = new OpExp(aleft, aright, a, OpExp.MINUS, t); :}
-                     | term:t
-                        {: RESULT = t; :}
-                     ;
-/*
-addop                ::= PLUS
-                     | MINUS
-                     ;
-*/
-term                 ::= term:t TIMES factor:f
+                     | expression:t TIMES factor:f
                         {: RESULT = new OpExp(tleft, tright, t, OpExp.TIMES, f); :}
-                     | term:t OVER factor:f
+                     | expression:t OVER factor:f
                         {: RESULT = new OpExp(tleft, tright, t, OpExp.OVER, f); :}
-                     | factor:f
-                        {: RESULT = f; :}
-                     ;
-/*
-mulop                ::= TIMES
-                     | OVER
-                     ;
-*/
-factor               ::= LPAREN expression:e RPAREN
+                     | LPAREN expression:e RPAREN
                         {: RESULT = e; :}
                      | var:v
                         {: RESULT = v; :}
@@ -275,6 +251,12 @@ factor               ::= LPAREN expression:e RPAREN
                         {: RESULT = new IntExp(nleft, nright, Integer.parseInt(n)); :}
                      ;
 
+var                  ::= ID:i
+                        {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
+                     | ID:i LSQUAREB expression:e RSQUAREB 
+                        {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
+                     ;
+
 call                 ::= ID:i LPAREN args:a RPAREN
                         {: RESULT = new CallExp(ileft, iright, i, a); :}
                      ;
@@ -282,7 +264,6 @@ call                 ::= ID:i LPAREN args:a RPAREN
 args                 ::= arg_list:a
                         {: RESULT = a; :}
                      |  
-
                      ;
 
 arg_list             ::= arg_list:a COMMA expression:e
