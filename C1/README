@@ -1,9 +1,8 @@
-Names: Numan Mir and Umer Ahmed
+Names: Numan Mir and Umer Ahmed 
 
 A JFlex+Cup implementation for the C- programming language.
 
-
-  To build the parser, type "make" in the current directory, which will 
+To build the parser, type "make" in the current directory, which will 
 generate an executable program called "Main".
 
   To test source code like "fac.cm", type 

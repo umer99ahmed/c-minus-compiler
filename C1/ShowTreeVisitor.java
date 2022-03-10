@@ -82,21 +82,15 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "IfExp:" );
     level++;
-    // indent( level );
-    // System.out.println( "test:" );
 
     if( exp.test != null){
       exp.test.accept( this, level );
     }
-    // indent( level );
-    // System.out.println( "then:" );
+
     if( exp.thenpart != null){
       exp.thenpart.accept( this, level );
     }
-    // if (exp.elsepart != null )
-    //^ should we leave this in and make IfExp take null for elsepart?
-    // indent( level );
-    // System.out.println( "else:" );
+
     if( exp.elsepart != null){
       exp.elsepart.accept( this, level );
     }
