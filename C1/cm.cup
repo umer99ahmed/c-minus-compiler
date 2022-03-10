@@ -19,7 +19,7 @@ parser code {:
        column of where the error occurred in the input as well as the
        reason for the error which is passed into the method in the
        String 'message'. */
-    public void report_error(String message, Object info) {
+     public void report_error(String message, Object info) {
    
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
@@ -49,7 +49,7 @@ parser code {:
    
         /* Add to the end of the StringBuffer error message created in
            this method the message that was passed into this method. */
-        m.append(" : "+message);
+        m.append(": "+message);
    
         /* Print the contents of the StringBuffer 'm', which contains
            an error message, out on a line. */
@@ -66,6 +66,11 @@ parser code {:
         System.exit(1);
     }
 
+    public void error_location(int row, int column) {
+      //  System.err.println("\t(In row " + row + ", column " + column + ")\n");
+       System.err.println("\n");
+    }
+
 :};
    
    
@@ -73,8 +78,7 @@ parser code {:
    
 terminal ELSE, IF, INT, RETURN, VOID, WHILE;
 terminal PLUS, MINUS, TIMES, OVER, LT, LTEQ, GT, GTEQ, EQ, NOTEQ, ASSIGN, SEMI, COMMA, LPAREN, RPAREN, LSQUAREB, RSQUAREB, LCURLYB, RCURLYB;
-terminal String ID;
-terminal String NUM;
+terminal String ID, NUM;
 terminal ERROR;
 
 non terminal VarExp var;
@@ -111,6 +115,11 @@ declaration_list     ::= declaration_list:d1 declaration:d2
                         :}
                      | declaration:d
                         {: RESULT = new DecList(d, null); :}
+                     | error:e declaration:d
+                        {: parser.report_error("Invalid declaration of varaiable or function in declaration list", null);
+                           parser.error_location(eleft, eright); 
+                           RESULT = new DecList(d, null); 
+                        :}
                      ;
                      
 declaration          ::= var_declaration:v
@@ -128,11 +137,16 @@ var_declaration      ::= type_specifier:t ID:i SEMI
 type_specifier       ::= INT:i
                         {: RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                      | VOID:v
-                        {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
+                        {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}   
                      ;
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
                      {: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
+                      | type_specifier:t ID:i LPAREN error:p RPAREN compound_stmt:c
+                        {: parser.report_fatal_error("(fatal line: "+ (pleft+1) + " column: "+ pright  +") Invalid params provided in function declaration", null);
+                           parser.error_location(tleft, tright);  
+                           RESULT = new FunctionDec(tleft, tright, t, i, null, c);
+                        :}
                      ;
 
 params               ::= param_list:p
@@ -150,6 +164,11 @@ param_list           ::= param_list:p1 COMMA param:p2
                         :}
                      | param:p
                         {: RESULT = new VarDecList(p, null); :}
+                     | error:err COMMA param:p
+                        {: parser.report_error("Invalid param provided in param list", null);
+                           parser.error_location(errleft, errright);  
+                           RESULT = new VarDecList(p, null);
+                        :}
                      ;
 
 param                ::= type_specifier:t ID:i 
@@ -160,16 +179,22 @@ param                ::= type_specifier:t ID:i
 
 compound_stmt        ::= LCURLYB:lcb local_declarations:l statement_list:s RCURLYB
                         {: RESULT = new CompoundExp(lcbleft, lcbright, l, s); :}
+                        // | LCURLYB:lcb error:e statement_list:s RCURLYB
+                        // {: parser.report_error("Invalid local declaration(s) within compound statement", null);
+                        //    parser.error_location(eleft, eright);  
+                        //    RESULT = new CompoundExp(lcbleft, lcbright, null, s);
+
                      ;
 
 local_declarations   ::= local_declarations:l var_declaration:v
-                        {:  VarDecList t = l;
+                        {: VarDecList t = l;
                            while(t.tail != null)
                               t = t.tail;
                            t.tail = new VarDecList(v, null);
                            RESULT = l; 
                         :}
                      | {: RESULT = new VarDecList(null, null); :} //does NilExp make sense here?
+
                      ;
 
 statement_list       ::= statement_list:s1 statement:s2 
@@ -180,6 +205,8 @@ statement_list       ::= statement_list:s1 statement:s2
                            RESULT = s1;
                         :}
                      | {: RESULT = new ExpList(null, null); :}
+                   
+                  
                      ;
 
 statement            ::= expression_stmt:e 
@@ -194,30 +221,47 @@ statement            ::= expression_stmt:e
                         {: RESULT = r; :}
                      ;
 
-expression_stmt      ::= expression:e SEMI
+expression_stmt      ::= expression:e SEMI 
                         {: RESULT = e; :}
                      | SEMI
                         {: /* do we NilExp here? */ :}
-                     ;
-/* 15 */             
+                     | error SEMI:s
+                        {: parser.report_error("Invalid expression statement ", null);
+                           parser.error_location(sleft, sright);  
+                        :}
+                     ;/* 15 */      
+
 selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                         {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright));
                         /* not sure about NilExp's row/col */ :}
                      | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
                         {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+                     | IF:i LPAREN:lp error:e RPAREN statement:s
+                        {: parser.report_error("Invalid expression within if condition ", null);
+                           parser.error_location(eleft, eright);  
+                           //RESULT = new NilExp(lpleft,lpright); 
+                         RESULT = new IfExp(ileft, iright, null, s, new NilExp(ileft, iright)); :}
                      ;
 
-/* 16 - 29 */
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                         {: RESULT = new WhileExp(wleft, wright, e, s); :}
+                     | WHILE:w LPAREN error:e RPAREN statement:s
+                        {: parser.report_error("Invalid expression within while condition ", null);
+                           parser.error_location(eleft, eright);  
+                           RESULT = new WhileExp(wleft, wright, null, s);
+                        :}
                      ;
 
 return_stmt          ::= RETURN:r expression:e SEMI
                         {: RESULT = new ReturnExp(rleft, rright, e); :}
                      | RETURN:r SEMI
                         {: RESULT = new ReturnExp(rleft, rright, new NilExp(rleft, rright)); :}
+                     | RETURN:r error:e SEMI
+                        {: parser.report_error("Invalid expression in return statement ", null);
+                           parser.error_location(eleft, eright);  
+                           RESULT = new ReturnExp(rleft, rright, null);
+                        :}
                      ;
-
 
 expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new AssignExp(vleft, vright, v, e); :}
@@ -233,32 +277,49 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.EQ, a2); :}
                      |   expression:a1 NOTEQ expression:a2
                         {: RESULT = new OpExp(a1left, a1right, a1, OpExp.NOTEQ, a2); :}
-                     |  expression:a PLUS expression:t
+                     |   expression:a PLUS expression:t
                         {: RESULT = new OpExp(aleft, aright, a, OpExp.PLUS, t); :}
-                     | expression:a MINUS expression:t
+                     |   expression:a MINUS expression:t
                         {: RESULT = new OpExp(aleft, aright, a, OpExp.MINUS, t); :}
-                     | expression:t TIMES expression:f
+                     |   expression:t TIMES expression:f
                         {: RESULT = new OpExp(tleft, tright, t, OpExp.TIMES, f); :}
-                     | expression:t OVER expression:f
+                     |   expression:t OVER expression:f
                         {: RESULT = new OpExp(tleft, tright, t, OpExp.OVER, f); :}
-                     | LPAREN expression:e RPAREN
+                     |   LPAREN expression:e RPAREN
                         {: RESULT = e; :}
+                     |   LPAREN:lp error:e RPAREN
+                        {: parser.report_error("Invalid expression within parentheses ", null); 
+                           parser.error_location(eleft, eright); 
+                           //RESULT = new NilExp(lpleft,lpright); 
+                           RESULT = null; 
+                        :}
                      | var:v
                         {: RESULT = v; :}
                      | call:c
                         {: RESULT = c; :}
                      | NUM:n
                         {: RESULT = new IntExp(nleft, nright, Integer.parseInt(n)); :}
+         
                      ;
 
 var                  ::= ID:i
                         {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
                      | ID:i LSQUAREB expression:e RSQUAREB 
                         {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
+                     | ID:i LSQUAREB error:e RSQUAREB
+                        {: parser.report_error("Invalid index expression of index variable ", null);
+                           parser.error_location(eleft, eright);  
+                           RESULT =  new VarExp(ileft, iright, new IndexVar(ileft, iright, i, null)); 
+                        :}
                      ;
 
 call                 ::= ID:i LPAREN args:a RPAREN
                         {: RESULT = new CallExp(ileft, iright, i, a); :}
+                     | ID:i LPAREN error:e RPAREN
+                        {: parser.report_error("Invalid argument(s) provided for function call ", null);
+                           parser.error_location(eleft, eright);  
+                           RESULT = new CallExp(eleft, eleft, i, null); 
+                        :}
                      ;
 
 args                 ::= arg_list:a
@@ -275,8 +336,10 @@ arg_list             ::= arg_list:a COMMA expression:e
                         :}
                      | expression:e
                         {: RESULT = new ExpList(e, null); :}
+                     | error:err COMMA expression:e
+                        {: parser.report_error("Invalid argument in argument list ", null);
+                           parser.error_location(errleft, errright);  
+                           RESULT = new ExpList(e, null); 
+                        :}
                      ;
 
-              
-            
-      

@@ -87,13 +87,7 @@ non terminal relop, addop, mulop;
 non terminal term, factor, call;
 non terminal args, arg_list;
 
-/*
-non terminal program, stmt_seq;
-non terminal stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
-non terminal exp, simple_exp, term, factor;   
-*/
 /* ----------------------------Grammar Section-------------------- */
-/* 1-15 */
 program	            ::= declaration_list
                      ;
 
@@ -214,61 +208,3 @@ args                 ::= arg_list
 arg_list             ::= arg_list COMMA expression
                      | expression
                      ;
-
-/* ----------------------------smaple parse bellow-------------------- */
-/*
-start with program;
-
-
-program	     ::= stmt_seq
-               ;
-
-stmt_seq     ::= stmt_seq SEMI stmt 
-               | stmt
-               | error SEMI stmt
-               ;
-
-stmt         ::= if_stmt
-               | repeat_stmt
-               | assign_stmt
-               | read_stmt
-               | write_stmt
-               ;
-
-if_stmt      ::= IF exp THEN stmt_seq END
-               | IF exp THEN stmt_seq ELSE stmt_seq END
-               ;
-
-repeat_stmt  ::= REPEAT stmt_seq UNTIL exp
-               ;
-
-assign_stmt  ::= ID ASSIGN exp
-               ;
-
-read_stmt    ::= READ ID
-               ;
-
-write_stmt   ::= WRITE exp
-               ;
-
-exp          ::= simple_exp LT simple_exp
-               | simple_exp GT simple_exp
-               | simple_exp EQ simple_exp
-               | simple_exp
-               ;
-
-simple_exp   ::= simple_exp PLUS term
-               | simple_exp MINUS term
-               | term
-               ;
-
-term         ::= term TIMES factor
-               | term OVER factor
-               | factor
-               ;
-
-factor       ::= LPAREN exp RPAREN
-               | NUM
-               | ID
-               ;
-*/

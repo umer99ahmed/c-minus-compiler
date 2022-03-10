@@ -92,11 +92,6 @@ non terminal NameTy type_specifier;
 
 non terminal relop, addop, mulop;
 
-/*
-non terminal program, stmt_seq;
-non terminal stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
-non terminal exp, simple_exp, term, factor;   
-*/
 /* ----------------------------Grammar Section-------------------- */
 start with program;
 
@@ -104,7 +99,6 @@ program1     ::= fun_declaration:v
                  {: RESULT = v; :}
                ;
 
-/* 1-15 */
 program	            ::= declaration_list:d
                         {: RESULT = d; :}
                      ;
@@ -206,7 +200,7 @@ expression_stmt      ::= expression:e SEMI
                      | SEMI
                         {: /* do we NilExp here? */ :}
                      ;
-/* 15 */             
+      
 selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                         {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright));
                         /* not sure about NilExp's row/col */ :}
@@ -214,7 +208,6 @@ selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                         {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
                      ;
 
-/* 16 - 29 */
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                         {: RESULT = new WhileExp(wleft, wright, e, s); :}
                      ;

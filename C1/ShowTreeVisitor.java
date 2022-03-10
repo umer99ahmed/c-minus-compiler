@@ -12,8 +12,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "AssignExp:" );
     level++;
-    exp.lhs.accept( this, level );
-    exp.rhs.accept( this, level );
+    if(exp.lhs != null){
+      exp.lhs.accept( this, level );
+    }
+    if(exp.rhs != null){
+      exp.rhs.accept( this, level );
+    }
   }
   
   public void visit( CallExp exp, int level ){
@@ -30,8 +34,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "CompoundExp: ");
     level++;
-    exp.decs.accept( this, level );
-    exp.exps.accept( this, level );
+    if (exp.decs != null) {
+      exp.decs.accept( this, level );
+    }
+        
+    if(exp.exps!= null){
+      exp.exps.accept( this, level );
+    }
 
   }
 
@@ -58,9 +67,15 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println( "FunctionDec: " + dec.func );
     level++;
     
-    dec.result.accept( this, level );
-    dec.params.accept( this, level );
-    dec.body.accept( this, level );
+    if(dec.result != null){
+      dec.result.accept( this, level );
+    }
+    if(dec.params != null){
+      dec.params.accept( this, level );
+    }
+    if(dec.body != null){
+      dec.body.accept( this, level );
+    }
   }
 
   public void visit( IfExp exp, int level ){
@@ -70,17 +85,21 @@ public class ShowTreeVisitor implements AbsynVisitor {
     // indent( level );
     // System.out.println( "test:" );
 
-    exp.test.accept( this, level );
+    if( exp.test != null){
+      exp.test.accept( this, level );
+    }
     // indent( level );
     // System.out.println( "then:" );
-
-    exp.thenpart.accept( this, level );
+    if( exp.thenpart != null){
+      exp.thenpart.accept( this, level );
+    }
     // if (exp.elsepart != null )
     //^ should we leave this in and make IfExp take null for elsepart?
     // indent( level );
     // System.out.println( "else:" );
-
-    exp.elsepart.accept( this, level );
+    if( exp.elsepart != null){
+      exp.elsepart.accept( this, level );
+    }
   }
 
   public void visit( IntExp exp, int level ){
@@ -141,29 +160,39 @@ public class ShowTreeVisitor implements AbsynVisitor {
         System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
     level++;
-    exp.left.accept( this, level );
-    exp.right.accept( this, level );
+    if( exp.left != null){
+      exp.left.accept( this, level );
+    }
+    if( exp.right != null){
+      exp.right.accept( this, level );
+    }
   }
 
   public void visit( ReturnExp exp, int level ){
     indent( level );
     System.out.println( "ReturnExp: ");
     level++;
-    exp.exp.accept( this, level );
+    if(exp.exp != null){
+      exp.exp.accept( this, level );
+    }
   }
 
   public void visit( SimpleDec dec, int level ){
     indent( level );
     System.out.println( "SimpleDec: "+ dec.name);
     level++;
-    dec.typ.accept( this, level );
+    if(dec.typ != null){
+      dec.typ.accept( this, level );
+    }
   }
 
   public void visit( ArrayDec dec, int level ){
     indent( level );
     System.out.println( "ArrayDec: "+ dec.name);
     level++;
-    dec.typ.accept( this, level );
+    if(dec.typ != null){
+          dec.typ.accept( this, level );
+    }
     if(dec.size != null){
       dec.size.accept( this, level );
     }
@@ -179,7 +208,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "IndexVar: "+ var.name);
     level++;
-    var.index.accept( this, level );
+    if(var.index != null){
+      var.index.accept( this, level );
+    }
   }
 
   public void visit( VarDecList varDecList, int level ){
@@ -195,52 +226,22 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println( "VarExp: ");
     level++;
-    exp.variable.accept(this, level);
+    if(exp.variable != null){
+      exp.variable.accept(this, level);
+    }
   }
 
   public void visit( WhileExp exp, int level ){
     indent( level );
     System.out.println( "WhileExp:" );
     level++;
-    exp.test.accept( this, level ); 
-    exp.body.accept( this, level );
+    if(exp.test != null){
+      exp.test.accept( this, level ); 
+    }    
+    if(exp.body != null){
+      exp.body.accept( this, level );
+    }
   }
 
-  
-
-
-
-
-  // public void visit( IfExp exp, int level ) {
-  //   indent( level );
-  //   System.out.println( "IfExp:" );
-  //   level++;
-  //   exp.test.accept( this, level );
-  //   exp.thenpart.accept( this, level );
-  //   if (exp.elsepart != null )
-  //      exp.elsepart.accept( this, level );
-  // }
-
-
-
-
-  // public void visit( ReadExp exp, int level ) {
-  //   indent( level );
-  //   System.out.println( "ReadExp:" );
-  //   exp.input.accept( this, ++level );
-  // }
-
-
-
-  // public void visit( VarExp exp, int level ) {
-  //   indent( level );
-  //   System.out.println( "VarExp: " + exp.name );
-  // }
-
-  // public void visit( WriteExp exp, int level ) {
-  //   indent( level );
-  //   System.out.println( "WriteExp:" );
-  //   exp.output.accept( this, ++level );
-  // }
 
 }

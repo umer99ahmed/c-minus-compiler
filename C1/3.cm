@@ -1,0 +1,25 @@
+/*
+  This program contains the following errors:
+    - Invalid expression in return statement "d << 8;"
+    - Invalid expression within if test condition, for example "if(i<n;)" is invalid syntax
+    - invalid return expression, for example "return f.d" f.d; is not a exp
+*/  
+
+int func(void) {
+
+    int d;
+    /*Invalid expression in return statement*/
+    d << 8;
+
+   /*Invalid expression within if condition */
+  if(i<n;) {
+      print(hello);
+  }
+
+  if(j<n){
+      print(goodbye);
+  }
+/* Invalid expression in return statement  */
+  return f.d ;
+
+}

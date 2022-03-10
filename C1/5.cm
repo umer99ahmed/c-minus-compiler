@@ -1,0 +1,39 @@
+/*
+  This program contains the following errors, each error is commented above the line the error is seen to occur
+  errors:
+    -  var[1===3]; invalid index "1===3"
+    -  statment3 = statement1  statement2; invalid expression statement "statement1  statement2"
+    -  h = u - u//v * v; invalid expression statement " u//v"
+    -  call(d;);   Invalid argument(s) provided for function call  "d;"
+    -  if(i<)        Invalid expression within if condition "i<"
+    -  i++;        Invalid expression statement  
+    -  return obj.size;   Invalid expression in return statement  "obj.size"
+
+*/  
+
+
+/*Invalid params provided in function declaration results in a fatal error*/
+int FullOfErrorFunc(){
+    /*Invalid index expression of index variable */
+    var[1===3];
+    statement1;
+    statment2 = statement1;
+    /*Invalid expression statement */
+    statment3 = statement1  statement2;
+    /*Invalid expression statement */
+    h = u - u//v * v;
+    /*Invalid argument(s) provided for function call */
+    call(d;);
+
+    /*Error: Invalid expression within if condition */
+    if(i<) 
+        /*Invalid expression statement */
+        i++;
+    else{
+        i = i -1;
+    }
+
+    /* Invalid expression in return statement  */
+    return obj.size;
+}
+
