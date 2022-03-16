@@ -8,7 +8,7 @@
 int func(void) {
 
     int d;
-    /*Invalid expression in return statement*/
+    /*Invalid expression in  statement*/
     d << 8;
 
    /*Invalid expression within if condition */

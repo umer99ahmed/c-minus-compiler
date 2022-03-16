@@ -14,3 +14,5 @@ generate an executable program called "Main".
   and the syntax tree will be displayed on the screen.
   To rebuild the parser, type "make clean" and type "make" again.
 
+compress:tar -czvf umer_nmir_c1.tgz umer_nmir_c1
+extract: tar -xzvf umer_nmir_c1.tgz
