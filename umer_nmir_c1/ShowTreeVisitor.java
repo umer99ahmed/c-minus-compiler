@@ -44,6 +44,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   }
 
+  public void visit( CompoundExp exp, int level, boolean isPreceded ){}
+
   public void visit( DecList decList, int level ){
     while( decList != null ) {
       if(decList.head != null){

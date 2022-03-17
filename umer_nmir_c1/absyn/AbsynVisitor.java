@@ -10,6 +10,8 @@ public interface AbsynVisitor {
 
   public void visit( CompoundExp exp, int level );
 
+  public void visit( CompoundExp exp, int level, boolean isPreceded );
+
   public void visit( DecList dec, int level );
 
   public void visit( ExpList exp, int level );
