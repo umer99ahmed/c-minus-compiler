@@ -1,8 +1,11 @@
 /* A program to compute the factorial value of an input */
 
+int global;
+
 void main(void) {
   
   int x; int fac;
+  int global;
   x = input();
   fac = 1;
   {

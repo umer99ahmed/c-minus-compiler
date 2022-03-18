@@ -8,9 +8,43 @@ public class SemanticAnalyzer implements AbsynVisitor {
   HashMap<String, ArrayList<NodeType>> table; //NodeType: String name, Dec def, int level
   final static int SPACES = 4;
 
+  public SemanticAnalyzer(){
+    table = new HashMap<String, ArrayList<NodeType>>();
+  }
 
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
+  }
+
+
+  private void symTableInsert( NodeType node ){
+    // indent( node.level );
+
+    // System.out.println("inserting "+ node.name  );
+    table.putIfAbsent( node.name,  new ArrayList<>());
+    table.get(node.name).add(node);
+ 
+    
+    System.out.println("[");
+    for(int i = 0; i < table.get(node.name).size(); i++){
+      System.out.println(table.get(node.name).get(i).name + " "+ table.get(node.name).get(i).level);
+    }
+    System.out.println("]");
+      
+    if (node.def instanceof SimpleDec) {
+      indent( node.level );
+      System.out.println("simpledec detected "+ ((SimpleDec)node.def).name);
+      
+    }
+    //insert <string (dec.name), NodeType including dec.name, dec, level>
+  }
+  
+  private void symTableLookUp ( ) {
+
+  }
+
+  private void symTableDelete ( ) {
+
   }
 
 
@@ -59,8 +93,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit( SimpleDec dec, int level ){
-    indent( level );
-    System.out.println( "SimpleDec: "+ dec.name);
+    // indent( level );
+    // System.out.println( "SimpleDec: "+ dec.name);
+    NodeType node = new NodeType(dec.name, dec, level );
+    symTableInsert( node );
     //level++;
     if(dec.typ != null){
       dec.typ.accept( this, level+1 );
@@ -69,7 +105,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
   public void visit( ArrayDec dec, int level ){
     indent( level );
-    System.out.println( "ArrayDec: "+ dec.name);
+    // System.out.println( "ArrayDec: "+ dec.name);
     //level++;
     if(dec.typ != null){
           dec.typ.accept( this, level+1 );
@@ -88,29 +124,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     } 
   }
 
-    public void visit( AssignExp exp, int level ) {
-    // indent( level );
-    // System.out.println( "AssignExp:" );
-    // level++;
-    // if(exp.lhs != null){
-    //   exp.lhs.accept( this, level );
-    // }
-    // if(exp.rhs != null){
-    //   exp.rhs.accept( this, level );
-    // }
-  }
-  
-  public void visit( CallExp exp, int level ){
-    // indent( level );
-    // System.out.println( "CallExp: " + exp.func);
-    // level++;
-    // if(exp.args != null){
-    //   exp.args.accept( this, level );
-    // }
-    
-  }
-
-  public void visit( CompoundExp exp, int level ){
+    public void visit( CompoundExp exp, int level ){
       // System.out.println( "test: ");
       indent( level );
       System.out.println( "Entering a new block: ");
@@ -132,6 +146,29 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
   }
+
+  public void visit( AssignExp exp, int level ) {
+    // indent( level );
+    // System.out.println( "AssignExp:" );
+    // level++;
+    // if(exp.lhs != null){
+    //   exp.lhs.accept( this, level );
+    // }
+    // if(exp.rhs != null){
+    //   exp.rhs.accept( this, level );
+    // }
+  }
+  
+  public void visit( CallExp exp, int level ){
+    // indent( level );
+    // System.out.println( "CallExp: " + exp.func);
+    // level++;
+    // if(exp.args != null){
+    //   exp.args.accept( this, level );
+    // }
+    
+  }
+
 
   public void visit( IfExp exp, int level ){
     // indent( level );
@@ -157,6 +194,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit( NameTy typ, int level ){
+    //wall
     // indent( level );
     // if(typ.type == 0){
     //   System.out.println( "NameTy: int" ); 
