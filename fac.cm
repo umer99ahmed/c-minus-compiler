@@ -1,9 +1,10 @@
 /* A program to compute the factorial value of an input */
 
 int global;
+int test;
 
-void main(void) {
-  
+void main(int hello, int test[]) {
+  /*
   int x; int fac;
   int global;
   x = input();
@@ -17,4 +18,5 @@ void main(void) {
   } 
 
   output(fac);
+  */
 }

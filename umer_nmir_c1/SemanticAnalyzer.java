@@ -2,6 +2,9 @@ import absyn.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+//global scope -> DecList
+// block scope -> Compound 
+// 
 
 public class SemanticAnalyzer implements AbsynVisitor {
 
@@ -23,17 +26,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // System.out.println("inserting "+ node.name  );
     table.putIfAbsent( node.name,  new ArrayList<>());
     table.get(node.name).add(node);
- 
-    
-    System.out.println("[");
-    for(int i = 0; i < table.get(node.name).size(); i++){
-      System.out.println(table.get(node.name).get(i).name + " "+ table.get(node.name).get(i).level);
-    }
-    System.out.println("]");
+     // System.out.println("[");
+    // for(int i = 0; i < table.get(node.name).size(); i++){
+    //   System.out.println(table.get(node.name).get(i).name + " "+ table.get(node.name).get(i).level);
+    // }
+    // System.out.println("]");
       
     if (node.def instanceof SimpleDec) {
-      indent( node.level );
-      System.out.println("simpledec detected "+ ((SimpleDec)node.def).name);
+      // indent( node.level );
+      // System.out.println("simpledec detected "+ ((SimpleDec)node.def).name);
       
     }
     //insert <string (dec.name), NodeType including dec.name, dec, level>
@@ -58,8 +59,42 @@ public class SemanticAnalyzer implements AbsynVisitor {
       }
       decList = decList.tail;
     } 
+
     //display annotated global variables before leaving
-    indent( level );
+    for ( String key : table.keySet() ) {
+      ArrayList<NodeType> vars  =  table.get(key);
+      NodeType var = vars.get( vars.size() - 1 ); 
+      
+      if (var.level == level + 1 ){
+        if (var.def instanceof SimpleDec) {
+          indent( var.level );
+          String type = ((SimpleDec)var.def).typ.type == 0 ? "int" : "void";
+          System.out.println( var.name+":"+" "+ type );
+        } else if (var.def instanceof FunctionDec) {
+          indent( var.level );
+          String returnType = ((FunctionDec)var.def).result.type == 0 ? "int" : "void";
+
+          // building a string of params if instance of functionDec
+          StringBuilder paramsStr = new StringBuilder();
+          VarDecList params = ((FunctionDec)var.def).params;
+          while( params != null ) {
+            if ( params.head != null ){
+                if ( params.head instanceof SimpleDec ) {
+                  String paramType = ((SimpleDec)params.head).typ.type == 0 ? "int" : "void";
+                  paramsStr.append(paramType+" ");
+              } else if ( params.head instanceof ArrayDec ) {
+                  String paramType = ((ArrayDec)params.head).typ.type == 0 ? "int" : "void";
+                  paramsStr.append(paramType+"[] "); 
+              }
+            } 
+            params = params.tail;
+          }
+          System.out.println( var.name + ":" + " ( "+paramsStr+")" + " -> " + returnType );
+        }
+      }
+
+    }
+
     System.out.println( "Leaving the global scope");
 
   }
@@ -78,16 +113,21 @@ public class SemanticAnalyzer implements AbsynVisitor {
     System.out.println("Entering the scope for function " + dec.func);
     // System.out.println( "FunctionDec: " + dec.func );
     // level++;
-    
+
+    NodeType node = new NodeType(dec.func, dec, level );
+    symTableInsert( node );
+
     if(dec.result != null){
-      dec.result.accept( this, level );
+      dec.result.accept( this, level+1 );
     }
     if(dec.params != null){
-      dec.params.accept( this, level );
+      dec.params.accept( this, level+1 );
     }
     if(dec.body != null){
-      dec.body.accept( this, level, true );
+      dec.body.accept( this, level+1, true );
     }
+
+    //print fucntio var
     indent( level );
     System.out.println("Leaving the scope for function " + dec.func);
   }
