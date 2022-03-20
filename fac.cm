@@ -2,9 +2,11 @@
 
 int global;
 int test;
+int arr[2];
+int x[10];
 
-void main(int hello, int test[]) {
-  /*
+void main(int hello, int tests[], int bruhs[]) {
+
   int x; int fac;
   int global;
   x = input();
@@ -18,5 +20,5 @@ void main(int hello, int test[]) {
   } 
 
   output(fac);
-  */
+
 }
