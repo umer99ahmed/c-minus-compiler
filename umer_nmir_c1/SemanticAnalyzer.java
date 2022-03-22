@@ -417,21 +417,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // level++;
     if (exp.exp != null) {
       exp.exp.accept(this, level);
-      if (exp.exp instanceof VarExp) { // SimpleDec
-        // returned variable is of SimpleDec
-        // if (exp.exp.dtype instanceof SimpleDec) {
-        // returned variable's type
-        // int rVarType = ((SimpleDec) exp.exp.dtype).typ.type;
-
-        // }
-        // if(exp.exp.variable instanceof SimpleVar) {
-        // System.out.println("??");
-        // }
-        // System.out.println((SimpleVar(exp.exp.variable.name)));
-        // String type = ((SimpleDec) var.def).typ.type == 0 ? "int" : "void";
-      }
     }
-
   }
 
   public void visit(CallExp exp, int level) {// TC
