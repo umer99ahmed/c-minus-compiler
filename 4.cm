@@ -1,7 +1,8 @@
-int y;
 /* REVIEW: y becomes undefined when the line below includes void a[x], or int a[x]
 if its int a[x], then a[x] is undefined as well... */
-int a[x]; int x;
+int x;
+int y;
+int a[x]; 
 
 /* Error: returning int from a void function */
 void funtwo(void) {
