@@ -22,7 +22,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
       System.out.print(" ");
   }
 
-
   private void symTableInsert(NodeType node) {
     table.putIfAbsent(node.name, new ArrayList<>());
     // table.get(node.name).add(node);
@@ -177,6 +176,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     displayScopeVars(level);
     symTableDelete(level);
     indent(level);
+    System.out.println("TEST: " + dec.result.type);
     System.out.println("Leaving the scope for function " + dec.func);
   }
 
@@ -352,7 +352,21 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // level++;
     if (exp.exp != null) {
       exp.exp.accept(this, level);
+      if (exp.exp instanceof VarExp) { // SimpleDec
+        // returned variable is of SimpleDec
+        if (exp.exp.dtype instanceof SimpleDec) {
+          // returned variable's type
+          int rVarType = ((SimpleDec)exp.exp.dtype).typ.type;
+          System.out.println(rVarType);
+        }
+        // if(exp.exp.variable instanceof SimpleVar) {
+        // System.out.println("??");
+        // }
+        // System.out.println((SimpleVar(exp.exp.variable.name)));
+        // String type = ((SimpleDec) var.def).typ.type == 0 ? "int" : "void";
+      }
     }
+
   }
 
   public void visit(CallExp exp, int level) {// TC
@@ -382,6 +396,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
           + ", column " + (var.col + 1) + ".");
       return;
     }
+
     // var.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, NameTy.INT), "" );
 
   }

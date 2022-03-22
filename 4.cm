@@ -1,14 +1,13 @@
 int y;
 /* REVIEW: y becomes undefined when the line below includes void a[x], or int a[x]
 if its int a[x], then a[x] is undefined as well... */
-int a[x]; int x;
+/* int a[x]; int x; */
 
-/* Error: returning int from a void function */
 void funtwo(void) {
     int x;
-    a[x] = 2;
     x = 2;
-    return x;
+    /* Error: returning int from a void function */
+    return x; /* try also returning an actual number from a void and int function */
 }
 
 void main(void) {
@@ -19,7 +18,11 @@ void main(void) {
     y = funtwo();
 
     /* Others: 
+    - returning too many arguments
     - providing too many arguments, 
-    - providing too few arguments 
+    - providing too few arguments,
+    - returning a boolean expression like 2 < 3
+    - return a function call - void and int
+    - no return statement
     */
 }
