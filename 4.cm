@@ -1,0 +1,25 @@
+int y;
+/* REVIEW: y becomes undefined when the line below includes void a[x], or int a[x]
+if its int a[x], then a[x] is undefined as well... */
+int a[x]; int x;
+
+/* Error: returning int from a void function */
+void funtwo(void) {
+    int x;
+    a[x] = 2;
+    x = 2;
+    return x;
+}
+
+void main(void) {
+    /* Error: providing an int to a void function call */
+    funtwo(y);
+
+    /* Error: expecting an int from a void function call */
+    y = funtwo();
+
+    /* Others: 
+    - providing too many arguments, 
+    - providing too few arguments 
+    */
+}

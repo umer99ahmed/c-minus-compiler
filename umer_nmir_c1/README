@@ -9,7 +9,7 @@ generate an executable program called "Main".
   Scanner:
     "java -cp /usr/share/java/cup.jar:. Scanner < fac.cm"
   Parser:
-    "java -cp /usr/share/java/cup.jar:. Main fac.cm" 
+    "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
 
   and the syntax tree will be displayed on the screen.
   To rebuild the parser, type "make clean" and type "make" again.
