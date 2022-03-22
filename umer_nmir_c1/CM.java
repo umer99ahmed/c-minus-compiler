@@ -19,7 +19,6 @@ class CM {
   static public void main(String argv[]) {    
     /* Start the parser */
     try {
-      
       int filenameIndex = 0;
       if(argv.length == 2){
         if(argv[0].equals("-a") || argv[0].equals("-s")) { //to-do: add -c for C3 here and below
