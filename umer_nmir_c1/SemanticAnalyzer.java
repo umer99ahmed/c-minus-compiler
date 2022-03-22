@@ -124,6 +124,65 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
   }
 
+  // TYPE CHECKING: Checking if the function's return type matches that of the return statement
+  private void typeCheckFunctionReturn(FunctionDec dec, int rType, ExpList body) {
+    // This function iterates through the function's body, obtains the ReturnExp, and compares the
+    // types
+    boolean hasReturn = false;
+    ReturnExp returnExp;
+    String returnExpError =
+        "ERROR: Returned expression does not match function's return type at row ";
+    while (body != null) {
+      if (body.head instanceof ReturnExp) {
+        hasReturn = true;
+        returnExp = (ReturnExp) body.head;
+        if (returnExp.exp instanceof VarExp) {
+          VarExp var = (VarExp) returnExp.exp;
+          // TO-DO: Should I check if dtype is null?
+          if (var.dtype instanceof SimpleDec) {
+            SimpleDec sDec = (SimpleDec) var.dtype;
+            if (sDec.typ.type != rType) {
+              symbolErrors
+                  .add(returnExpError + (sDec.row + 1) + ", column " + (sDec.col + 1) + ".");
+            }
+          } else if (var.dtype instanceof ArrayDec) {
+            ArrayDec aDec = (ArrayDec) var.dtype;
+            if (aDec.typ.type != rType) {
+              symbolErrors
+                  .add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
+            }
+          }
+          // if the return expression is an IntExp and function's return type is void
+        } else if (returnExp.exp instanceof IntExp && rType == 1) {
+          symbolErrors.add(returnExpError + (returnExp.exp.row + 1) + ", column "
+              + (returnExp.exp.col + 1) + ".");
+        } else if (returnExp.exp instanceof CallExp) {
+          CallExp call = (CallExp) returnExp.exp;
+          if (table.containsKey(call.func)) {
+            ArrayList<NodeType> vars = table.get(call.func);
+            NodeType var = vars.get(vars.size() - 1);
+            // Could it be anything other than FunctionDec?
+            if (var.def instanceof FunctionDec) {
+              FunctionDec fDec = (FunctionDec) var.def;
+              if (fDec.result.type != rType) {
+                symbolErrors
+                    .add(returnExpError + (call.row + 1) + ", column " + (call.col + 1) + ".");
+              }
+            }
+          }
+        } // TODO: else if returnExp.exp instance of OpExp {}
+      }
+      body = body.tail;
+    }
+    // For the case in which there is no return statement in a function that has a return type of
+    // int
+    if (!hasReturn && rType == 0) {
+      symbolErrors
+          .add("ERROR: Function with return type of int is missing a return statement at row "
+              + (dec.row + 1) + ", column " + (dec.col + 1) + ".");
+    }
+  }
+
   public void visit(DecList decList, int level) {
     indent(level);
     System.out.println("Entering the global scope: ");
@@ -172,12 +231,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (dec.body != null) {
       dec.body.accept(this, level + 1, true);
     }
+
+
+    typeCheckFunctionReturn(dec, dec.result.type, dec.body.exps);
+
     // print function var
     displayScopeVars(level);
     symTableDelete(level);
+
+
     indent(level);
-    System.out.println("TEST: " + dec.result.type);
     System.out.println("Leaving the scope for function " + dec.func);
+
   }
 
   public void visit(SimpleDec dec, int level) {
@@ -354,11 +419,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
       exp.exp.accept(this, level);
       if (exp.exp instanceof VarExp) { // SimpleDec
         // returned variable is of SimpleDec
-        if (exp.exp.dtype instanceof SimpleDec) {
-          // returned variable's type
-          int rVarType = ((SimpleDec)exp.exp.dtype).typ.type;
-          System.out.println(rVarType);
-        }
+        // if (exp.exp.dtype instanceof SimpleDec) {
+        // returned variable's type
+        // int rVarType = ((SimpleDec) exp.exp.dtype).typ.type;
+
+        // }
         // if(exp.exp.variable instanceof SimpleVar) {
         // System.out.println("??");
         // }
@@ -379,15 +444,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
           + ", column " + (exp.col + 1) + ".");
       // System.err.println("ERROR: Undefined symbol (" + exp.func + "()) at row " + (exp.row + 1) +
       // ", column " + (exp.col + 1) + ".");
-    } else{
-        ArrayList<NodeType> vars = table.get(exp.func);
-        NodeType var = vars.get(vars.size() - 1);
-        //get type of var in table and copy into VarExp.dtype
-        if (var.def instanceof FunctionDec) {// SimpleDec
-          exp.dtype = new SimpleDec(exp.row, exp.col, ((FunctionDec)var.def).result, "");
-        } 
+    } else {
+      ArrayList<NodeType> vars = table.get(exp.func);
+      NodeType var = vars.get(vars.size() - 1);
+      // get type of var in table and copy into VarExp.dtype
+      if (var.def instanceof FunctionDec) {// SimpleDec
+        exp.dtype = new SimpleDec(exp.row, exp.col, ((FunctionDec) var.def).result, "");
+      }
     }
-      
+
 
     if (exp.args != null) {
       exp.args.accept(this, level);
@@ -423,15 +488,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (var.index != null) {
       var.index.accept(this, level);
 
-      if(var.index.dtype == null){
-          indent(level);
-          System.err.println("ERROR:  Invalid index provided for array variable (" + var.name + ") at row " + (var.row + 1)
-          + ", column " + (var.col + 1) + ".");
+      if (var.index.dtype == null) {
+        indent(level);
+        System.err.println("ERROR:  Invalid index provided for array variable (" + var.name
+            + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
 
-      } else if( (var.index.dtype instanceof SimpleDec && ((SimpleDec) var.index.dtype).typ.type != 0)  || (var.index.dtype instanceof ArrayDec && ((ArrayDec)var.index.dtype).typ.type != 0) ){
-          indent(level);
-          System.err.println("ERROR: Invalid index type (expected 'int') for the array variable (" + var.name + ") at row " + (var.row + 1)
-          + ", column " + (var.col + 1) + ".");
+      } else if ((var.index.dtype instanceof SimpleDec
+          && ((SimpleDec) var.index.dtype).typ.type != 0)
+          || (var.index.dtype instanceof ArrayDec && ((ArrayDec) var.index.dtype).typ.type != 0)) {
+        indent(level);
+        System.err.println("ERROR: Invalid index type (expected 'int') for the array variable ("
+            + var.name + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
       } else {
         // indent(level);
         // System.err.println("TYPE CHECK SUCCESS");
@@ -446,21 +513,23 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (exp.variable != null) {
       exp.variable.accept(this, level);
 
-      //if variable is Simplevar && declared
+      // if variable is Simplevar && declared
       if (exp.variable instanceof SimpleVar && table.containsKey(((SimpleVar) exp.variable).name)) {
         ArrayList<NodeType> vars = table.get(((SimpleVar) exp.variable).name);
         NodeType var = vars.get(vars.size() - 1);
 
         if (var.def instanceof SimpleDec) {
           exp.dtype = new SimpleDec(exp.row, exp.col, ((SimpleDec) var.def).typ, "");
-        } 
-      }else if(exp.variable instanceof IndexVar && table.containsKey(((IndexVar)exp.variable).name)){
+        }
+      } else if (exp.variable instanceof IndexVar
+          && table.containsKey(((IndexVar) exp.variable).name)) {
         ArrayList<NodeType> vars = table.get(((IndexVar) exp.variable).name);
         NodeType var = vars.get(vars.size() - 1);
 
         if (var.def instanceof ArrayDec) {
-          exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "", ((ArrayDec) var.def).size);
-        } 
+          exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "",
+              ((ArrayDec) var.def).size);
+        }
       }
     }
   }
