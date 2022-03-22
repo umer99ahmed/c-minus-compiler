@@ -379,7 +379,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
           + ", column " + (exp.col + 1) + ".");
       // System.err.println("ERROR: Undefined symbol (" + exp.func + "()) at row " + (exp.row + 1) +
       // ", column " + (exp.col + 1) + ".");
+    } else{
+        ArrayList<NodeType> vars = table.get(exp.func);
+        NodeType var = vars.get(vars.size() - 1);
+        //get type of var in table and copy into VarExp.dtype
+        if (var.def instanceof FunctionDec) {// SimpleDec
+          exp.dtype = new SimpleDec(exp.row, exp.col, ((FunctionDec)var.def).result, "");
+        } 
     }
+      
 
     if (exp.args != null) {
       exp.args.accept(this, level);
@@ -415,12 +423,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (var.index != null) {
       var.index.accept(this, level);
 
-      if (var.index.dtype == null || ((SimpleDec) var.index.dtype).typ.type != 0) {
-        indent(level);
-        System.err.println("TYPE CHECK ERROR");
+      if(var.index.dtype == null){
+          indent(level);
+          System.err.println("ERROR:  Invalid index provided for array variable (" + var.name + ") at row " + (var.row + 1)
+          + ", column " + (var.col + 1) + ".");
+
+      } else if( (var.index.dtype instanceof SimpleDec && ((SimpleDec) var.index.dtype).typ.type != 0)  || (var.index.dtype instanceof ArrayDec && ((ArrayDec)var.index.dtype).typ.type != 0) ){
+          indent(level);
+          System.err.println("ERROR: Invalid index type (expected 'int') for the array variable (" + var.name + ") at row " + (var.row + 1)
+          + ", column " + (var.col + 1) + ".");
       } else {
-        indent(level);
-        System.err.println("TYPE CHECK SUCCESS");
+        // indent(level);
+        // System.err.println("TYPE CHECK SUCCESS");
       }
     }
   }
@@ -432,18 +446,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (exp.variable != null) {
       exp.variable.accept(this, level);
 
+      //if variable is Simplevar && declared
       if (exp.variable instanceof SimpleVar && table.containsKey(((SimpleVar) exp.variable).name)) {
         ArrayList<NodeType> vars = table.get(((SimpleVar) exp.variable).name);
         NodeType var = vars.get(vars.size() - 1);
-        if (var.def instanceof SimpleDec) {// SimpleDec
+
+        if (var.def instanceof SimpleDec) {
           exp.dtype = new SimpleDec(exp.row, exp.col, ((SimpleDec) var.def).typ, "");
-        } else if (var.def instanceof FunctionDec) {// FunctionDec
+        } 
+      }else if(exp.variable instanceof IndexVar && table.containsKey(((IndexVar)exp.variable).name)){
+        ArrayList<NodeType> vars = table.get(((IndexVar) exp.variable).name);
+        NodeType var = vars.get(vars.size() - 1);
 
-        } else if (var.def instanceof ArrayDec) {// ArrayDec
-
-        }
+        if (var.def instanceof ArrayDec) {
+          exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "", ((ArrayDec) var.def).size);
+        } 
       }
-
     }
   }
 
