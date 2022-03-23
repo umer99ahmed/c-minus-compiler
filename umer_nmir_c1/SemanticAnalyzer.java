@@ -128,15 +128,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // This function iterates through the function's body, obtains the ReturnExp, and compares the
     // types
     boolean hasReturn = false;
-    ReturnExp returnExp;
     String returnExpError =
         "ERROR: Returned expression does not match function's return type at row ";
 
     while (body != null) {
       if (body.head instanceof ReturnExp) {
         hasReturn = true;
-        returnExp = (ReturnExp) body.head;
-        VarDec rExp = returnExp.exp.dtype;
+        VarDec rExp = ((ReturnExp) body.head).exp.dtype;
         if (rExp instanceof SimpleDec) {
           SimpleDec sDec = (SimpleDec) rExp;
           if (sDec.typ.type != rType) {
@@ -161,9 +159,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   private void typeCheckFunctionCall(CallExp call) {
-    // first check if numArgs != numParams (numParams = 0 if void)
-    // (too many arguments or too few arguments)
-    // if numArgs == numParams: proceed to checking types
     // TODO: if function call is assigned to a variable, the variable
     // and function return type must be int - this should be handled by AssignExp
     ExpList args = call.args;
@@ -378,12 +373,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
       exp.lhs.accept(this, level);
 
       if (exp.lhs.dtype == null) {
-        symbolErrors.add("ERROR: Invalid expression type to the left of assignment at row " + (exp.lhs.row + 1) + ", column " + (exp.lhs.col + 1) + ".");
-      } else if (exp.lhs.dtype instanceof SimpleDec ) { 
-        leftSideType =  ((SimpleDec) exp.lhs.dtype).typ.type;
-      } else if(exp.lhs.dtype instanceof ArrayDec ) {
+        symbolErrors.add("ERROR: Invalid expression type to the left of assignment at row "
+            + (exp.lhs.row + 1) + ", column " + (exp.lhs.col + 1) + ".");
+      } else if (exp.lhs.dtype instanceof SimpleDec) {
+        leftSideType = ((SimpleDec) exp.lhs.dtype).typ.type;
+      } else if (exp.lhs.dtype instanceof ArrayDec) {
         isLeftArrayDec = true;
-        leftSideType =  ((ArrayDec) exp.lhs.dtype).typ.type;
+        leftSideType = ((ArrayDec) exp.lhs.dtype).typ.type;
 
       }
     }
@@ -391,35 +387,50 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (exp.rhs != null) {
       exp.rhs.accept(this, level);
       if (exp.rhs.dtype == null) {
-        symbolErrors.add("ERROR: Invalid expression type to the right of assignment at row " + (exp.rhs.row + 1) + ", column " + (exp.rhs.col + 1) + ".");
-      } else if (exp.rhs.dtype instanceof SimpleDec ) { 
-        rightSideType =  ((SimpleDec) exp.rhs.dtype).typ.type;
-      } else if(exp.rhs.dtype instanceof ArrayDec ) {
+        symbolErrors.add("ERROR: Invalid expression type to the right of assignment at row "
+            + (exp.rhs.row + 1) + ", column " + (exp.rhs.col + 1) + ".");
+      } else if (exp.rhs.dtype instanceof SimpleDec) {
+        rightSideType = ((SimpleDec) exp.rhs.dtype).typ.type;
+      } else if (exp.rhs.dtype instanceof ArrayDec) {
         isRightArrayDec = true;
-        rightSideType =  ((ArrayDec) exp.rhs.dtype).typ.type;
+        rightSideType = ((ArrayDec) exp.rhs.dtype).typ.type;
 
       }
     }
-    
-      if(leftSideType != rightSideType || isLeftArrayDec!= isRightArrayDec){
-        symbolErrors.add("ERROR: Expression types of assingment expression do not match at row " + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
-        exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0 ), "");
 
-      }else{
-          exp.dtype = isLeftArrayDec == false ? new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, leftSideType ), "") : new ArrayDec(exp.row, exp.col, ((ArrayDec) exp.lhs.dtype).typ, "", ((ArrayDec) exp.lhs.dtype).size ) ;
-      }
+    if (leftSideType != rightSideType || isLeftArrayDec != isRightArrayDec) {
+      symbolErrors.add("ERROR: Expression types of assignment expression do not match at row "
+          + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
+      exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0), "");
 
-
-    
-
+    } else {
+      exp.dtype = isLeftArrayDec == false
+          ? new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, leftSideType), "")
+          : new ArrayDec(exp.row, exp.col, ((ArrayDec) exp.lhs.dtype).typ, "",
+              ((ArrayDec) exp.lhs.dtype).size);
+    }
 
   }
 
+  private void typeCheckTestCondition(Exp exp) {
+    String errorMsg = "ERROR: Test condition must be of type integer at row ";
+    VarDec dtype;
+
+    if(exp instanceof IfExp) {
+      dtype = ((IfExp)exp).test.dtype;
+    } else {
+      dtype = ((WhileExp)exp).test.dtype;
+    }
+    if (dtype instanceof SimpleDec) {
+      if (((SimpleDec) dtype).typ.type != 0) {
+        symbolErrors.add(errorMsg + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
+      }
+    } else { //is this ever executed?
+      symbolErrors.add(errorMsg + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
+    }
+  }
 
   public void visit(IfExp exp, int level) {
-    // indent( level );
-    // System.out.println( "IfExp:" );
-    // level++;
     if (exp.test != null) {
       exp.test.accept(this, level);
     }
@@ -431,7 +442,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (exp.elsepart != null) {
       exp.elsepart.accept(this, level);
     }
+
+    typeCheckTestCondition(exp);
+
   }
+
 
   public void visit(IntExp exp, int level) {
 
@@ -571,7 +586,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
         symbolErrors.add("ERROR: Invalid index provided for array variable (" + var.name
             + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
 
-      } else if ((var.index.dtype instanceof SimpleDec && ((SimpleDec) var.index.dtype).typ.type != 0) || (var.index.dtype instanceof ArrayDec) ) { //removed || (var.index.dtype instanceof ArrayDec && ((ArrayDec) var.index.dtype).typ.type != 0)
+      } else if ((var.index.dtype instanceof SimpleDec
+          && ((SimpleDec) var.index.dtype).typ.type != 0)
+          || (var.index.dtype instanceof ArrayDec)) { // removed || (var.index.dtype instanceof
+                                                      // ArrayDec && ((ArrayDec)
+                                                      // var.index.dtype).typ.type != 0)
         symbolErrors.add("ERROR: Invalid index type (expected 'int') for the array variable ("
             + var.name + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
       } else {
@@ -628,5 +647,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     if (exp.body != null) {
       exp.body.accept(this, level);
     }
+
+    typeCheckTestCondition(exp);
   }
 }
