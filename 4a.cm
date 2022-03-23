@@ -1,20 +1,23 @@
 int a;
 
-int adder(int x, int y) {
-    return x + y;
+void adder(int x, int y) {
+    return x < y;
 }
 
-/* make sure this only works with array as second param */
-int test(int x, int arr[]) {
-    return 4;
+int blah(int x) {
+    return;
 }
+
 
 int main(void) {
-    int b; int c; int d[3];
+    int b; int c;
+    int arr[3];
     a = 1;
     b = 2;
     c = 3;
 
+    adder(a * b, c - 1);
+    
     /*adder(1, adder(a, b));*/
     test(d[4], d);  /*d should work */
 
@@ -22,5 +25,7 @@ int main(void) {
     /* adder(a); or adder(); etc */
     return adder(a, b, c);
 
+    b = arr[a+b];
 
+    return blah; /* this should not work */
 }

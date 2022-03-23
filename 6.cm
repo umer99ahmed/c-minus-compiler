@@ -1,0 +1,28 @@
+/* test conditions for if- and while-stmts must be int */
+
+int y;
+
+void foo(void) {
+    y = 1;
+}
+
+void output(int p) {
+    p = p + 1;
+    return;
+}
+
+int bruh(void) {
+    return 10000000;
+}
+
+void main(void) {
+    int x;
+    int arr[3];
+    x = 1;
+    
+    output(foo()); /*(should give error): expects int, but callexp is void */
+    if(x) output(foo());
+    if(foo()) output(x, foo());
+    while (x > 1) output(x);
+    return;
+}
