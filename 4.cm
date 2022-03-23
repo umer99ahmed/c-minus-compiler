@@ -42,5 +42,5 @@ int funthree(void) {
 int funfour(void) {
     int y;
     /* Error: The function call in the return statement must return an int [DONE] */
-    return funtwo();
+    return funtwo(); /* returning a number should work*/
 }

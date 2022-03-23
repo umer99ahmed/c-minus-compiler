@@ -7,7 +7,7 @@ void main(void){
     void hello;
     int num[3];
 
-    hello = x[num]; /*Should this work if num is null? */
+    hello = x[num]; 
    
 }
 /* make sure void x; gives error */

@@ -137,38 +137,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
       if (body.head instanceof ReturnExp) {
         hasReturn = true;
         returnExp = (ReturnExp) body.head;
-        if (returnExp.exp instanceof VarExp) {
-          VarExp var = (VarExp) returnExp.exp;
-          if (var.dtype instanceof SimpleDec) {
-            SimpleDec sDec = (SimpleDec) var.dtype;
-            if (sDec.typ.type != rType) {
-              symbolErrors
-                  .add(returnExpError + (sDec.row + 1) + ", column " + (sDec.col + 1) + ".");
-            }
-          } else if (var.dtype instanceof ArrayDec) {
-            ArrayDec aDec = (ArrayDec) var.dtype;
-            if (aDec.typ.type != rType) {
-              symbolErrors
-                  .add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
-            }
+        VarDec rExp = returnExp.exp.dtype;
+        if (rExp instanceof SimpleDec) {
+          SimpleDec sDec = (SimpleDec) rExp;
+          if (sDec.typ.type != rType) {
+            symbolErrors.add(returnExpError + (sDec.row + 1) + ", column " + (sDec.col + 1) + ".");
           }
-          // if the return expression is an IntExp and function's return type is void
-        } else if (returnExp.exp instanceof IntExp && rType == 1) {
-          symbolErrors.add(returnExpError + (returnExp.exp.row + 1) + ", column "
-              + (returnExp.exp.col + 1) + ".");
-        } else if (returnExp.exp instanceof CallExp) {
-          CallExp call = (CallExp) returnExp.exp;
-          if (table.containsKey(call.func)) {
-            ArrayList<NodeType> vars = table.get(call.func);
-            NodeType var = vars.get(vars.size() - 1);
-            // Could it be anything other than FunctionDec?
-            if (var.def instanceof FunctionDec) {
-              FunctionDec fDec = (FunctionDec) var.def;
-              if (fDec.result.type != rType) {
-                symbolErrors
-                    .add(returnExpError + (call.row + 1) + ", column " + (call.col + 1) + ".");
-              }
-            }
+        } else if (rExp instanceof ArrayDec) {
+          ArrayDec aDec = (ArrayDec) rExp;
+          if (aDec.typ.type != rType) {
+            symbolErrors.add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
           }
         }
       }
@@ -180,6 +158,63 @@ public class SemanticAnalyzer implements AbsynVisitor {
       symbolErrors
           .add("ERROR: Function with return type of int is missing a return statement at row "
               + (dec.row + 1) + ", column " + (dec.col + 1) + ".");
+    }
+  }
+
+  private void typeCheckFunctionCall(CallExp call) {
+    // first check if numArgs != numParams (numParams = 0 if void)
+    // (too many arguments or too few arguments)
+    // if numArgs == numParams: proceed to checking types
+    // TODO: if function call is assigned to a variable, the variable
+    // and function return type must be int - this should be handled by AssignExp
+    ExpList args = call.args;
+    ArrayList<Exp> argList = new ArrayList<Exp>();
+    ArrayList<VarDec> paramList = new ArrayList<VarDec>();
+    while (args != null) {
+      if (args.head != null) {
+        argList.add(args.head);
+      }
+      args = args.tail;
+    }
+    if (table.containsKey(call.func)) {
+      ArrayList<NodeType> vars = table.get(call.func);
+      NodeType var = vars.get(vars.size() - 1);
+      if (var.def instanceof FunctionDec) {
+        VarDecList params = ((FunctionDec) var.def).params;
+        while (params != null) {
+          if (params.head != null) {
+            paramList.add(params.head);
+          }
+          params = params.tail;
+        }
+        int numArgs = argList.size();
+        int numParams = paramList.size();
+        if (numArgs == numParams) {
+          for (int i = 0; i < numArgs; i++) {
+            int argType = -1; // 0 for int (simpledec or integer), 1 for arraydec
+            int paramType = -1;
+            if (argList.get(i).dtype instanceof SimpleDec) {
+              argType = 0;
+            } else if (argList.get(i).dtype instanceof ArrayDec) {
+              argType = 1;
+            }
+            if (paramList.get(i) instanceof SimpleDec) {
+              paramType = 0;
+            } else if (paramList.get(i) instanceof ArrayDec) {
+              paramType = 1;
+            }
+            if (argType == -1 || argType != paramType) {
+              System.out.println("argType: " + argType + ", paramType: " + paramType);
+              symbolErrors.add("ERROR: Argument type does not match parameter type at row "
+                  + (argList.get(i).row + 1) + ", column " + (argList.get(i).col + 1) + ".");
+            }
+          }
+        } else {
+          symbolErrors.add("ERROR: In function call, " + numParams + " argument(s) expected, but "
+              + numArgs + " argument(s) provided at row " + (call.row + 1) + ", column "
+              + (call.col + 1) + ".");
+        }
+      }
     }
   }
 
@@ -440,66 +475,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
   // This function checks that the arguments provided in a function call match the paramaters of a
   // function
-  private void typeCheckFunctionCall(CallExp call) {
-    // first check if numArgs != numParams (numParams = 0 if void)
-    // (too many arguments or too few arguments)
-    // if numArgs == numParams: proceed to checking types
-    // TODO: if function call is assigned to a variable, the variable
-    // and function return type must be int - this should be handled by AssignExp
-    ExpList args = call.args;
-    ArrayList<Exp> argList = new ArrayList<Exp>();
-    ArrayList<VarDec> paramList = new ArrayList<VarDec>();
-    while (args != null) {
-      if (args.head != null) {
-        argList.add(args.head);
-      }
-      args = args.tail;
-    }
-    if (table.containsKey(call.func)) {
-      ArrayList<NodeType> vars = table.get(call.func);
-      NodeType var = vars.get(vars.size() - 1);
-      if (var.def instanceof FunctionDec) {
-        VarDecList params = ((FunctionDec) var.def).params;
-        while (params != null) {
-          if (params.head != null) {
-            paramList.add(params.head);
-          }
-          params = params.tail;
-        }
-        int numArgs = argList.size();
-        int numParams = paramList.size();
-        if (numArgs == numParams) {
-          for (int i = 0; i < numArgs; i++) {
-            int argType = -1; // 0 for int (simpledec or integer), 1 for arraydec
-            int paramType = -1;
-            if (argList.get(i).dtype instanceof SimpleDec) {
-              argType = 0;
-            } else if (argList.get(i).dtype instanceof ArrayDec) {
-              argType = 1;
-            }
-            if (paramList.get(i) instanceof SimpleDec) {
-              paramType = 0;
-            } else if (paramList.get(i) instanceof ArrayDec) {
-              paramType = 1;
-            }
-            if (argType == -1 || argType != paramType) {
-              System.out.println("argType: " + argType + ", paramType: " + paramType);
-              symbolErrors.add("ERROR: Argument type does not match parameter type at row "
-                  + (argList.get(i).row + 1) + ", column " + (argList.get(i).col + 1) + ".");
-            }
-          }
-        } else {
-          symbolErrors.add("ERROR: In function call, " + numParams + " argument(s) expected, but "
-              + numArgs + " argument(s) provided at row " + (call.row + 1) + ", column "
-              + (call.col + 1) + ".");
-        }
 
-      }
-    }
-
-
-
-  }
 
   public void visit(CallExp exp, int level) {// TC
     // indent( level );

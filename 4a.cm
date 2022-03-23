@@ -1,26 +1,18 @@
 int a;
 
 int adder(int x, int y) {
-    return x + y;
+    return x < y;
 }
 
-/* make sure this only works with array as second param */
-int test(int x, int arr[]) {
-    return 4;
-}
 
 int main(void) {
-    int b; int c; int d[3];
+    int b; int c;
+    int arr[3];
     a = 1;
-    b = 2;
-    c = 3;
+    b = 3;
+    arr[2] = 1;
 
-    /*adder(1, adder(a, b));*/
-    test(d, d[4]);  /*d should work */
+    b = arr[a+b];
 
-    /* Error: function call sends too many/too few arguments */
-    /* adder(a); or adder(); etc */
-    return adder(a, b, c);
-
-
+    return adder(a, arr[2]);
 }
