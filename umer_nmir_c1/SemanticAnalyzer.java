@@ -48,7 +48,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     vars.add(node);
   }
 
-  private void symTableLookUp() {
+  private void symTableLookUp() { /* delete? */
 
   }
 
@@ -132,13 +132,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
     ReturnExp returnExp;
     String returnExpError =
         "ERROR: Returned expression does not match function's return type at row ";
+
     while (body != null) {
       if (body.head instanceof ReturnExp) {
         hasReturn = true;
         returnExp = (ReturnExp) body.head;
         if (returnExp.exp instanceof VarExp) {
           VarExp var = (VarExp) returnExp.exp;
-          // TO-DO: Should I check if dtype is null?
+          // TODO: Should I check if dtype is null?
           if (var.dtype instanceof SimpleDec) {
             SimpleDec sDec = (SimpleDec) var.dtype;
             if (sDec.typ.type != rType) {
@@ -182,6 +183,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
               + (dec.row + 1) + ", column " + (dec.col + 1) + ".");
     }
   }
+
 
   public void visit(DecList decList, int level) {
     indent(level);
@@ -344,9 +346,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit(IntExp exp, int level) {
+    
     exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, NameTy.INT), "");
     // indent( level );
-    // System.out.println( "IntExp: " + exp.value );
   }
 
   public void visit(NameTy typ, int level) {
@@ -420,6 +422,25 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
   }
 
+  // This function checks that the arguments provided in a function call match the paramaters of a
+  // function
+  private void typeCheckFunctionCall(CallExp call) {
+    // first check if numArgs != numParams (numParams = 0 if void)
+    // (too many arguments or too few arguments)
+    // if numArgs == numParams: proceed to checking types
+    // TODO: if function call is assigned to a variable, the variable
+    // and function return type must be int - this should be handled by AssignExp
+    ExpList args = call.args;
+    int numArgs = 0;
+    while (args != null) {
+      if (args.head != null) {
+        numArgs++;
+      }
+      args = args.tail;
+    }
+    System.out.println("num of args in function call: " + numArgs);
+  }
+
   public void visit(CallExp exp, int level) {// TC
     // indent( level );
     // System.out.println( "CallExp: " + exp.func);
@@ -439,6 +460,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
       }
     }
 
+    typeCheckFunctionCall(exp);
 
     if (exp.args != null) {
       exp.args.accept(this, level);
@@ -475,15 +497,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
       var.index.accept(this, level);
 
       if (var.index.dtype == null) {
-        indent(level);
-        System.err.println("ERROR:  Invalid index provided for array variable (" + var.name
+        symbolErrors.add("ERROR:  Invalid index provided for array variable (" + var.name
             + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
 
       } else if ((var.index.dtype instanceof SimpleDec
           && ((SimpleDec) var.index.dtype).typ.type != 0)
           || (var.index.dtype instanceof ArrayDec && ((ArrayDec) var.index.dtype).typ.type != 0)) {
         indent(level);
-        System.err.println("ERROR: Invalid index type (expected 'int') for the array variable ("
+        symbolErrors.add("ERROR: Invalid index type (expected 'int') for the array variable ("
             + var.name + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
       } else {
         // indent(level);
