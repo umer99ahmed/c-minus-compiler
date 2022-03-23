@@ -369,12 +369,50 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // indent( level );
     // System.out.println( "AssignExp:" );
     // level++;
+    boolean isLeftArrayDec = false;
+    boolean isRightArrayDec = false;
+    int leftSideType = -1;
+    int rightSideType = -1;
+
     if (exp.lhs != null) {
       exp.lhs.accept(this, level);
+
+      if (exp.lhs.dtype == null) {
+        symbolErrors.add("ERROR: Invalid expression type to the left of assignment at row " + (exp.lhs.row + 1) + ", column " + (exp.lhs.col + 1) + ".");
+      } else if (exp.lhs.dtype instanceof SimpleDec ) { 
+        leftSideType =  ((SimpleDec) exp.lhs.dtype).typ.type;
+      } else if(exp.lhs.dtype instanceof ArrayDec ) {
+        isLeftArrayDec = true;
+        leftSideType =  ((ArrayDec) exp.lhs.dtype).typ.type;
+
+      }
     }
+
     if (exp.rhs != null) {
       exp.rhs.accept(this, level);
+      if (exp.rhs.dtype == null) {
+        symbolErrors.add("ERROR: Invalid expression type to the right of assignment at row " + (exp.rhs.row + 1) + ", column " + (exp.rhs.col + 1) + ".");
+      } else if (exp.rhs.dtype instanceof SimpleDec ) { 
+        rightSideType =  ((SimpleDec) exp.rhs.dtype).typ.type;
+      } else if(exp.rhs.dtype instanceof ArrayDec ) {
+        isRightArrayDec = true;
+        rightSideType =  ((ArrayDec) exp.rhs.dtype).typ.type;
+
+      }
     }
+    
+      if(leftSideType != rightSideType || isLeftArrayDec!= isRightArrayDec){
+        symbolErrors.add("ERROR: Expression types of assingment expression do not match at row " + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
+        exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0 ), "");
+
+      }else{
+          exp.dtype = isLeftArrayDec == false ? new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, leftSideType ), "") : new ArrayDec(exp.row, exp.col, ((ArrayDec) exp.lhs.dtype).typ, "", ((ArrayDec) exp.lhs.dtype).size ) ;
+      }
+
+
+    
+
+
   }
 
 
@@ -529,15 +567,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     if (var.index != null) {
       var.index.accept(this, level);
-
       if (var.index.dtype == null) {
         symbolErrors.add("ERROR: Invalid index provided for array variable (" + var.name
             + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
 
-      } else if ((var.index.dtype instanceof SimpleDec
-          && ((SimpleDec) var.index.dtype).typ.type != 0)
-          || (var.index.dtype instanceof ArrayDec && ((ArrayDec) var.index.dtype).typ.type != 0)) {
-        indent(level);
+      } else if ((var.index.dtype instanceof SimpleDec && ((SimpleDec) var.index.dtype).typ.type != 0) || (var.index.dtype instanceof ArrayDec) ) { //removed || (var.index.dtype instanceof ArrayDec && ((ArrayDec) var.index.dtype).typ.type != 0)
         symbolErrors.add("ERROR: Invalid index type (expected 'int') for the array variable ("
             + var.name + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
       } else {
