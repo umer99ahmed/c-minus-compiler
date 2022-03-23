@@ -3,11 +3,24 @@ int x[9];
 int func(void){
     return 9;
 }
+
+void funcVoid(void){
+    return; 
+}
+
 void main(void){
-    void hello;
+    int hello;
     int num[3];
 
-    hello = x[num]; /*Should this work if num is null? */
+    hello = func();
+    num[3] = x[num[3]];
+    num[3] = 2;
+    hello = x[func()];
+    hello = hello = x[3] = 3<2;
+    hello = funcVoid();
+    hello = x;
+    x[2] = num = x;
+    
    
 }
 /* make sure void x; gives error */

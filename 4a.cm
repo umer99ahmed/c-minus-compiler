@@ -16,7 +16,7 @@ int main(void) {
     c = 3;
 
     /*adder(1, adder(a, b));*/
-    test(d, d[4]);  /*d should work */
+    test(d[4], d);  /*d should work */
 
     /* Error: function call sends too many/too few arguments */
     /* adder(a); or adder(); etc */
