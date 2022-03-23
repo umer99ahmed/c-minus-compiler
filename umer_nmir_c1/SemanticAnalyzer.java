@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 // global scope -> DecList
 // block scope -> Compound
-//
 
 public class SemanticAnalyzer implements AbsynVisitor {
 

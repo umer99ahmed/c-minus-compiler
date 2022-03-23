@@ -1,0 +1,21 @@
+/* test conditions for if- and while-stmts must be int */
+
+int y;
+
+void foo(void) {
+    y = 1;
+}
+
+void output(int p) {
+    p = p + 1;
+    return;
+}
+
+void main(void) {
+    int x;
+    x = 1;
+    output(foo()); /* TODO (should give error): expects int, but callexp is void */
+    if(x) output(foo());
+    if(foo()) output(x, foo());
+    return;
+}
