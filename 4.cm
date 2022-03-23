@@ -2,13 +2,14 @@
 if its int a[x], then a[x] is undefined as well... */
 int x;
 int y;
-int a[x]; 
+int a[3];
+/*int a[x]; */
 
-/* Error: returning int from a void function */
 void funtwo(void) {
     int x;
-    a[x] = 2;
     x = 2;
+    /* Error: returning int var (or int array, or number) from a void function [DONE] */ 
+    /* return a[1], return 1 */
     return x;
 }
 
@@ -20,7 +21,24 @@ void main(void) {
     y = funtwo();
 
     /* Others: 
+    - returning an OpExp
+    - returning too many arguments (i think that's a parsing issue...)
     - providing too many arguments, 
-    - providing too few arguments 
+    - providing too few arguments,
+    - returning a boolean expression like 2 < 3
+    - return a function call - void and int
+    - no return statement
+    - multiple return statements... bruh there's no end to this
     */
+}
+
+int funthree(void) {
+    int x;
+    /* Error: This function must return an integer but it does not have a return statement [DONE] */
+}
+
+int funfour(void) {
+    int y;
+    /* Error: The function call in the return statement must return an int [DONE] */
+    return funtwo();
 }
