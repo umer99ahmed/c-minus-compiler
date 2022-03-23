@@ -346,7 +346,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit(IntExp exp, int level) {
-    
+
     exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, NameTy.INT), "");
     // indent( level );
   }
@@ -431,14 +431,71 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // TODO: if function call is assigned to a variable, the variable
     // and function return type must be int - this should be handled by AssignExp
     ExpList args = call.args;
-    int numArgs = 0;
+    ArrayList<Exp> argList = new ArrayList<Exp>();
+    ArrayList<VarDec> paramList = new ArrayList<VarDec>();
     while (args != null) {
       if (args.head != null) {
-        numArgs++;
+        argList.add(args.head);
       }
       args = args.tail;
     }
-    System.out.println("num of args in function call: " + numArgs);
+    if (table.containsKey(call.func)) {
+      ArrayList<NodeType> vars = table.get(call.func);
+      NodeType var = vars.get(vars.size() - 1);
+      if (var.def instanceof FunctionDec) {
+        VarDecList params = ((FunctionDec) var.def).params;
+        while (params != null) {
+          if (params.head != null) {
+            paramList.add(params.head);
+          }
+          params = params.tail;
+        }
+        int numArgs = argList.size();
+        int numParams = paramList.size();
+        if (numArgs == numParams) {
+          for (int i = 0; i < numArgs; i++) {
+            int argType = -1; // 0 for int (simpledec or integer), 1 for arraydec
+            int paramType = -1;
+            if (argList.get(i) instanceof VarExp) {
+              VarExp arg = (VarExp) argList.get(i);
+              if (arg.dtype instanceof SimpleDec) { // TODO: figure out why dtype is never simpledec
+                                                    // or arraydec
+                // SimpleDec sDec = (SimpleDec) arg.dtype;
+                // assume int?
+                argType = 0;
+              } else if (arg.dtype instanceof ArrayDec) {
+                argType = 1;
+              }
+            } else if (argList.get(i) instanceof IntExp) {
+              argType = 0;
+            } else if (argList.get(i) instanceof CallExp) {
+              // TODO: make sure func name is in symbol table, and that it returns int
+            }
+            // should i even be comparing if the parameter type is void?
+            // really, parameter can only accept arguments of type simpledec, arraydec, or intexp
+            if (paramList.get(i) instanceof SimpleDec) {
+              // do i have to check if its void? or just assume int?
+              paramType = 0;
+            } else if (paramList.get(i) instanceof ArrayDec) {
+              paramType = 1;
+            }
+            if (argType == -1 || argType != paramType) {
+              symbolErrors
+                  .add(argType + " ERROR: Argument type does not match parameter type at row "
+                      + (argList.get(i).row + 1) + ", column " + (argList.get(i).col + 1) + ".");
+            }
+          }
+        } else {
+          symbolErrors.add("ERROR: In function call, " + numParams + " argument(s) expected, but "
+              + numArgs + " argument(s) provided at row " + (call.row + 1) + ", column "
+              + (call.col + 1) + ".");
+        }
+
+      }
+    }
+
+
+
   }
 
   public void visit(CallExp exp, int level) {// TC
