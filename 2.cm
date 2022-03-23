@@ -1,9 +1,19 @@
-void func(int a, int b){
-
+/*umer testing merging with branch*/
+int x[9];
+int func(void){
+    return 9;
 }
+
+void funcVoid(void){
+    return; 
+}
+
 void main(void){
+    int hello;
     int num[3];
 
-    func(2, num); 
-
+    2<((x<func())*hello);
+    
+   
 }
+/* make sure void x; gives error */

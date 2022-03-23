@@ -375,10 +375,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
           exp.dtype = isLeftArrayDec == false ? new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, leftSideType ), "") : new ArrayDec(exp.row, exp.col, ((ArrayDec) exp.lhs.dtype).typ, "", ((ArrayDec) exp.lhs.dtype).size ) ;
       }
 
-
-    
-
-
   }
 
 
@@ -424,47 +420,70 @@ public class SemanticAnalyzer implements AbsynVisitor {
   public void visit(OpExp exp, int level) {
     // indent( level );
     // System.out.print( "OpExp:" );
-    // switch( exp.op ) {
-    // case OpExp.PLUS:
-    // System.out.println( " + " );
-    // break;
-    // case OpExp.MINUS:
-    // System.out.println( " - " );
-    // break;
-    // case OpExp.TIMES:
-    // System.out.println( " * " );
-    // break;
-    // case OpExp.OVER:
-    // System.out.println( " / " );
-    // break;
-    // case OpExp.LTEQ:
-    // System.out.println( " <= " );
-    // break;
-    // case OpExp.GTEQ:
-    // System.out.println( " >= " );
-    // break;
-    // case OpExp.EQ:
-    // System.out.println( " == " );
-    // break;
-    // case OpExp.NOTEQ:
-    // System.out.println( " != " );
-    // break;
-    // case OpExp.LT:
-    // System.out.println( " < " );
-    // break;
-    // case OpExp.GT:
-    // System.out.println( " > " );
-    // break;
-    // default:
-    // System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
-    // }
-    // level++;
+    StringBuilder op = new StringBuilder();
+    switch( exp.op ) {
+    case OpExp.PLUS:
+      op.append( " + " );
+      break;
+    case OpExp.MINUS:
+      op.append( " - " );
+      break;
+    case OpExp.TIMES:
+      op.append( " * " );
+      break;
+    case OpExp.OVER:
+      op.append( " / " );
+      break;
+    case OpExp.LTEQ:
+      op.append( " <= " );
+      break;
+    case OpExp.GTEQ:
+      op.append( " >= " );
+      break;
+    case OpExp.EQ:
+      op.append( " == " );
+      break;
+    case OpExp.NOTEQ:
+      op.append( " != " );
+      break;
+    case OpExp.LT:
+      op.append( " < " );
+      break;
+    case OpExp.GT:
+      op.append( " > " );
+      break;
+    default:
+    System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
+    }
+  
+    int leftSideType = -1;
+    int rightSideType = -1;
+
     if (exp.left != null) {
       exp.left.accept(this, level);
+
+      if (exp.left.dtype != null && exp.left.dtype instanceof SimpleDec) {
+        leftSideType =  ((SimpleDec) exp.left.dtype).typ.type;
+        // symbolErrors.add("ERROR: Invalid expression type to the left of operator("+op.toString()+") at row " + (exp.lhs.row + 1) + ", column " + (exp.lhs.col + 1) + ".");
+      } 
     }
+
     if (exp.right != null) {
       exp.right.accept(this, level);
+      if (exp.right.dtype != null && exp.right.dtype instanceof SimpleDec) {
+        rightSideType =  ((SimpleDec) exp.right.dtype).typ.type;
+      }
     }
+    
+    if(leftSideType != 0  ){
+      symbolErrors.add("ERROR: Expression must evaluate to type 'int' to the left of operator("+op.toString()+") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
+    }
+    if(rightSideType != 0  ){
+      symbolErrors.add("ERROR: Expression must evaluate to type 'int' to the right of operator("+op.toString()+") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
+    }
+    
+    exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0 ), "");
+
   }
 
   public void visit(ReturnExp exp, int level) {
