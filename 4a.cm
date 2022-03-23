@@ -1,0 +1,19 @@
+int a;
+
+int adder(int x, int y) {
+    return x < y;
+}
+
+
+int main(void) {
+    int b; int c;
+    int arr[3];
+    a = 1;
+    b = 3;
+
+    b = arr[a+b];
+    
+
+
+    return adder;
+}

@@ -16,6 +16,8 @@ void funtwo(void) {
 void main(void) {
     /* Error: providing an int to a void function call */
     funtwo(y);
+    
+    /* weird case: funtwo(y = 2, x = y) is technically a valid argument list ? */
 
     /* Error: expecting an int from a void function call */
     y = funtwo();
