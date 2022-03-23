@@ -4,10 +4,10 @@ int func(void){
     return 9;
 }
 void main(void){
-    int hello;
+    void hello;
     int num[3];
 
-    hello = x[func()]; /*Should this work if num is null? */
+    hello = x[num]; /*Should this work if num is null? */
    
 }
 /* make sure void x; gives error */

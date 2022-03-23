@@ -139,7 +139,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
         returnExp = (ReturnExp) body.head;
         if (returnExp.exp instanceof VarExp) {
           VarExp var = (VarExp) returnExp.exp;
-          // TODO: Should I check if dtype is null?
           if (var.dtype instanceof SimpleDec) {
             SimpleDec sDec = (SimpleDec) var.dtype;
             if (sDec.typ.type != rType) {
@@ -171,7 +170,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
               }
             }
           }
-        } // TODO: else if returnExp.exp instance of OpExp {}
+        }
       }
       body = body.tail;
     }
@@ -250,6 +249,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
   public void visit(SimpleDec dec, int level) {
     // indent( level );
     // System.out.println( "SimpleDec: "+ dec.name);
+
+    if (dec.typ.type == 1) {
+      symbolErrors.add("ERROR: Variable (" + dec.name
+          + ") declared as VOID. Automatically changed to type INT at " + (dec.row + 1)
+          + ", column " + (dec.col + 1) + ".");
+      dec.typ.type = 0;
+    }
+
     NodeType node = new NodeType(dec.name, dec, level);
     symTableInsert(node);
     // level++;
@@ -261,6 +268,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
   public void visit(ArrayDec dec, int level) {
     // indent( level );
     // System.out.println( "ArrayDec: "+ dec.name);
+
+    if (dec.typ.type == 1) {
+      symbolErrors.add("ERROR: Variable (" + dec.name
+          + ") declared as VOID[]. Automatically changed to type INT[] at " + (dec.row + 1)
+          + ", column " + (dec.col + 1) + ".");
+      dec.typ.type = 0;
+    }
+
     NodeType node = new NodeType(dec.name, dec, level);
     symTableInsert(node);
 
@@ -276,6 +291,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
   public void visit(ExpList expList, int level) {
     while (expList != null) {
       if (expList.head != null) {
+
         expList.head.accept(this, level);
       }
       expList = expList.tail;
@@ -346,7 +362,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit(IntExp exp, int level) {
-    
+
     exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, NameTy.INT), "");
     // indent( level );
   }
@@ -431,14 +447,58 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // TODO: if function call is assigned to a variable, the variable
     // and function return type must be int - this should be handled by AssignExp
     ExpList args = call.args;
-    int numArgs = 0;
+    ArrayList<Exp> argList = new ArrayList<Exp>();
+    ArrayList<VarDec> paramList = new ArrayList<VarDec>();
     while (args != null) {
       if (args.head != null) {
-        numArgs++;
+        argList.add(args.head);
       }
       args = args.tail;
     }
-    System.out.println("num of args in function call: " + numArgs);
+    if (table.containsKey(call.func)) {
+      ArrayList<NodeType> vars = table.get(call.func);
+      NodeType var = vars.get(vars.size() - 1);
+      if (var.def instanceof FunctionDec) {
+        VarDecList params = ((FunctionDec) var.def).params;
+        while (params != null) {
+          if (params.head != null) {
+            paramList.add(params.head);
+          }
+          params = params.tail;
+        }
+        int numArgs = argList.size();
+        int numParams = paramList.size();
+        if (numArgs == numParams) {
+          for (int i = 0; i < numArgs; i++) {
+            int argType = -1; // 0 for int (simpledec or integer), 1 for arraydec
+            int paramType = -1;
+            if (argList.get(i).dtype instanceof SimpleDec) {
+              argType = 0;
+            } else if (argList.get(i).dtype instanceof ArrayDec) {
+              argType = 1;
+            }
+            if (paramList.get(i) instanceof SimpleDec) {
+              paramType = 0;
+            } else if (paramList.get(i) instanceof ArrayDec) {
+              paramType = 1;
+            }
+            if (argType == -1 || argType != paramType) {
+              System.out.println("argType: " + argType + ", paramType: " + paramType);
+              symbolErrors.add("ERROR: Argument type does not match parameter type at row "
+                  + (argList.get(i).row + 1) + ", column " + (argList.get(i).col + 1) + ".");
+            }
+          }
+        } else {
+          symbolErrors.add("ERROR: In function call, " + numParams + " argument(s) expected, but "
+              + numArgs + " argument(s) provided at row " + (call.row + 1) + ", column "
+              + (call.col + 1) + ".");
+        }
+
+      }
+    }
+
+
+
   }
 
   public void visit(CallExp exp, int level) {// TC
@@ -460,16 +520,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
       }
     }
 
-    typeCheckFunctionCall(exp);
-
     if (exp.args != null) {
       exp.args.accept(this, level);
     }
 
+    typeCheckFunctionCall(exp);
   }
 
   public void visit(SimpleVar var, int level) {
-    // System.out.println("SIMPLEVAR"+ var.name);
     // indent( level );
     // System.out.println( "SimpleVar: "+ var.name);
     if (!table.containsKey(var.name)) {
@@ -487,6 +545,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // System.out.println( "IndexVar: "+ var.name);
     // level++;
 
+
     if (!table.containsKey(var.name)) {
       symbolErrors.add("ERROR: Undefined symbol (" + var.name + "[]) at row " + (var.row + 1)
           + ", column " + (var.col + 1) + ".");
@@ -497,7 +556,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
       var.index.accept(this, level);
 
       if (var.index.dtype == null) {
-        symbolErrors.add("ERROR:  Invalid index provided for array variable (" + var.name
+        symbolErrors.add("ERROR: Invalid index provided for array variable (" + var.name
             + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
 
       } else if ((var.index.dtype instanceof SimpleDec
@@ -514,6 +573,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   public void visit(VarExp exp, int level) { // num
+    // if (exp.variable instanceof Sim) {
+    // }
     // indent( level );
     // System.out.println( "VarExp: ");
     // level++;
@@ -524,18 +585,25 @@ public class SemanticAnalyzer implements AbsynVisitor {
       if (exp.variable instanceof SimpleVar && table.containsKey(((SimpleVar) exp.variable).name)) {
         ArrayList<NodeType> vars = table.get(((SimpleVar) exp.variable).name);
         NodeType var = vars.get(vars.size() - 1);
-
         if (var.def instanceof SimpleDec) {
           exp.dtype = new SimpleDec(exp.row, exp.col, ((SimpleDec) var.def).typ, "");
+        } else if (var.def instanceof ArrayDec) {
+          exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "",
+              ((ArrayDec) var.def).size);
         }
       } else if (exp.variable instanceof IndexVar
           && table.containsKey(((IndexVar) exp.variable).name)) {
+
+
         ArrayList<NodeType> vars = table.get(((IndexVar) exp.variable).name);
         NodeType var = vars.get(vars.size() - 1);
 
+        // if (var.def instanceof ArrayDec) {
+        // exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "",
+        // ((ArrayDec) var.def).size);
+        // }
         if (var.def instanceof ArrayDec) {
-          exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "",
-              ((ArrayDec) var.def).size);
+          exp.dtype = new SimpleDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "");
         }
       }
     }

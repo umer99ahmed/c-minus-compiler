@@ -1,0 +1,9 @@
+void func(int a, int b){
+
+}
+void main(void){
+    int num[3];
+
+    func(2, num); 
+
+}
