@@ -10,10 +10,12 @@ void funcVoid(void){
 
 void main(void){
     int hello;
-    int num[3];
+    int num[2];
+
+    num[func()];
 
     2<((x<func())*hello);
-    
+    return funcVoid;
    
 }
 /* make sure void x; gives error */

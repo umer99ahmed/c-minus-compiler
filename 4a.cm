@@ -1,7 +1,11 @@
 int a;
 
-int adder(int x, int y) {
+void adder(int x, int y) {
     return x < y;
+}
+
+int blah(int x) {
+    return;
 }
 
 
@@ -12,6 +16,8 @@ int main(void) {
     b = 2;
     c = 3;
 
+    adder(a * b, c - 1);
+    
     /*adder(1, adder(a, b));*/
     test(d[4], d);  /*d should work */
 
@@ -21,5 +27,5 @@ int main(void) {
 
     b = arr[a+b];
 
-    return adder(a, arr[2]);
+    return blah; /* this should not work */
 }

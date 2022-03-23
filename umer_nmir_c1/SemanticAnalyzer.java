@@ -145,6 +145,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
           if (aDec.typ.type != rType) {
             symbolErrors.add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
           }
+        } else {
+          symbolErrors
+              .add("ERROR: Invalid return type at row " + (((ReturnExp) body.head).exp.row + 1)
+                  + ", column " + (((ReturnExp) body.head).exp.col + 1) + ".");
         }
       }
       body = body.tail;
@@ -159,8 +163,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
   }
 
   private void typeCheckFunctionCall(CallExp call) {
-    // TODO: if function call is assigned to a variable, the variable
-    // and function return type must be int - this should be handled by AssignExp
     ExpList args = call.args;
     ArrayList<Exp> argList = new ArrayList<Exp>();
     ArrayList<VarDec> paramList = new ArrayList<VarDec>();
@@ -188,7 +190,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
             int argType = -1; // 0 for int (simpledec or integer), 1 for arraydec
             int paramType = -1;
             if (argList.get(i).dtype instanceof SimpleDec) {
-              argType = 0;
+              if (((SimpleDec) argList.get(i).dtype).typ.type == 0) {
+                argType = 0;
+              }
             } else if (argList.get(i).dtype instanceof ArrayDec) {
               argType = 1;
             }
@@ -416,16 +420,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
     String errorMsg = "ERROR: Test condition must be of type integer at row ";
     VarDec dtype;
 
-    if(exp instanceof IfExp) {
-      dtype = ((IfExp)exp).test.dtype;
+    if (exp instanceof IfExp) {
+      dtype = ((IfExp) exp).test.dtype;
     } else {
-      dtype = ((WhileExp)exp).test.dtype;
+      dtype = ((WhileExp) exp).test.dtype;
     }
     if (dtype instanceof SimpleDec) {
       if (((SimpleDec) dtype).typ.type != 0) {
         symbolErrors.add(errorMsg + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
       }
-    } else { //is this ever executed?
+    } else {
       symbolErrors.add(errorMsg + (exp.row + 1) + ", column " + (exp.col + 1) + ".");
     }
   }
@@ -474,41 +478,41 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // indent( level );
     // System.out.print( "OpExp:" );
     StringBuilder op = new StringBuilder();
-    switch( exp.op ) {
-    case OpExp.PLUS:
-      op.append( " + " );
-      break;
-    case OpExp.MINUS:
-      op.append( " - " );
-      break;
-    case OpExp.TIMES:
-      op.append( " * " );
-      break;
-    case OpExp.OVER:
-      op.append( " / " );
-      break;
-    case OpExp.LTEQ:
-      op.append( " <= " );
-      break;
-    case OpExp.GTEQ:
-      op.append( " >= " );
-      break;
-    case OpExp.EQ:
-      op.append( " == " );
-      break;
-    case OpExp.NOTEQ:
-      op.append( " != " );
-      break;
-    case OpExp.LT:
-      op.append( " < " );
-      break;
-    case OpExp.GT:
-      op.append( " > " );
-      break;
-    default:
-    System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
+    switch (exp.op) {
+      case OpExp.PLUS:
+        op.append(" + ");
+        break;
+      case OpExp.MINUS:
+        op.append(" - ");
+        break;
+      case OpExp.TIMES:
+        op.append(" * ");
+        break;
+      case OpExp.OVER:
+        op.append(" / ");
+        break;
+      case OpExp.LTEQ:
+        op.append(" <= ");
+        break;
+      case OpExp.GTEQ:
+        op.append(" >= ");
+        break;
+      case OpExp.EQ:
+        op.append(" == ");
+        break;
+      case OpExp.NOTEQ:
+        op.append(" != ");
+        break;
+      case OpExp.LT:
+        op.append(" < ");
+        break;
+      case OpExp.GT:
+        op.append(" > ");
+        break;
+      default:
+        System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
-  
+
     int leftSideType = -1;
     int rightSideType = -1;
 
@@ -516,26 +520,32 @@ public class SemanticAnalyzer implements AbsynVisitor {
       exp.left.accept(this, level);
 
       if (exp.left.dtype != null && exp.left.dtype instanceof SimpleDec) {
-        leftSideType =  ((SimpleDec) exp.left.dtype).typ.type;
-        // symbolErrors.add("ERROR: Invalid expression type to the left of operator("+op.toString()+") at row " + (exp.lhs.row + 1) + ", column " + (exp.lhs.col + 1) + ".");
-      } 
+        leftSideType = ((SimpleDec) exp.left.dtype).typ.type;
+        // symbolErrors.add("ERROR: Invalid expression type to the left of
+        // operator("+op.toString()+") at row " + (exp.lhs.row + 1) + ", column " + (exp.lhs.col +
+        // 1) + ".");
+      }
     }
 
     if (exp.right != null) {
       exp.right.accept(this, level);
       if (exp.right.dtype != null && exp.right.dtype instanceof SimpleDec) {
-        rightSideType =  ((SimpleDec) exp.right.dtype).typ.type;
+        rightSideType = ((SimpleDec) exp.right.dtype).typ.type;
       }
     }
-    
-    if(leftSideType != 0  ){
-      symbolErrors.add("ERROR: Expression must evaluate to type 'int' to the left of operator("+op.toString()+") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
+
+    if (leftSideType != 0) {
+      symbolErrors.add(
+          "ERROR: Expression must evaluate to type 'int' to the left of operator(" + op.toString()
+              + ") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
     }
-    if(rightSideType != 0  ){
-      symbolErrors.add("ERROR: Expression must evaluate to type 'int' to the right of operator("+op.toString()+") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
+    if (rightSideType != 0) {
+      symbolErrors.add(
+          "ERROR: Expression must evaluate to type 'int' to the right of operator(" + op.toString()
+              + ") at row " + (exp.left.row + 1) + ", column " + (exp.left.col + 1) + ".");
     }
-    
-    exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0 ), "");
+
+    exp.dtype = new SimpleDec(exp.row, exp.col, new NameTy(exp.row, exp.col, 0), "");
 
   }
 
@@ -642,6 +652,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
           exp.dtype = new ArrayDec(exp.row, exp.col, ((ArrayDec) var.def).typ, "",
               ((ArrayDec) var.def).size);
         }
+        // else if (var.def instanceof FunctionDec) {
+        // exp.dtype = new SimpleDec(exp.row, exp.col, ((FunctionDec) var.def).result, "");
+        // }
       } else if (exp.variable instanceof IndexVar
           && table.containsKey(((IndexVar) exp.variable).name)) {
 
