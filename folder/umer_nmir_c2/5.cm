@@ -1,0 +1,72 @@
+/*
+  This program contains the following errors, each error is commented above the line the error is seen to occur
+  errors:
+    - Expression must evaluate to type 'int' to the right of operator( - )
+    - Expression must evaluate to type 'int' to the left of operator( < ) ('a' is array dec )
+    - Invalid index provided for array variable (a): minloc is not a int its a function 
+    - Argument type does not match parameter type, i.e retFunc expects array dec a[] sending a[3]
+    - Returned expression does not match function's return type, minloc returning output of retFun (void) expecting (int)
+    - Returned expression does not match function's return type, returning int in a void function
+    
+*/  
+
+int x[10];
+
+void retFunc(int a[], int low, int high) {
+  a[4] = low + high;
+}
+
+int minloc(int a[], int low, int high) {
+  int i; int x; int k;
+  k = low;
+  x = a[low];
+  /*Expression must evaluate to type 'int' to the right of operator( - )*/
+  i = low + 1 - a;
+  while (i < high) {
+    /*Expression must evaluate to type 'int' to the left of operator( < )*/
+    if (a < x) {
+    /*Invalid index provided for array variable (a)*/
+       x = a[minloc];
+       k = i; 
+    }
+    i = i + 1;
+  } 
+  /*Argument type does not match parameter type*/
+  /*Returned expression does not match function's return type*/
+  return retFunc(a[3], low, high);
+}
+
+
+void sort(int a[], int low, int high) {
+  int i; int k;
+  i = low;
+  while (i < high - 1) {
+    int t;
+    k = minloc(a, i, high);
+    t = a[k];
+    a[k] = a[i];
+    a[i] = t;
+    i = i + 1;
+  }
+}
+
+
+void main(void) {
+  int i;
+  i = 0;
+  while (i < 10) {
+    x[i] = input();
+    i = i + 1;
+  }
+
+  sort(x, 0, 10);
+
+  i = 0;
+  while (i < 10) {
+    output(x[i]);
+    i = i + 1;
+  }
+
+  /*Returned expression does not match function's return type*/
+  return 3;
+}
