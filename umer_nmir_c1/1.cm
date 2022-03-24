@@ -1,39 +1,24 @@
-/* This program compiles without error. It is a modified C language binary search program
-that a large variety of C- grammar rules. */
+/* This program compiles without any syntax or symatics errors.  */
+
+void func(int a){
+  a = input();
+  output(a);
+}
 
 int main(void)
 {
-  int c;
-  int first;
-  int last;
-  int middle;
-  int n;
-  int search;
-  int array[100];
-  printf(hello);
-  scanf(d,n);
-
-while (c < n){
-    scanf(array);
-}
-  first = 0;
-  last = n - 1;
-  middle = (first+last)/2;
-
-  while (first <= last) {
-    if (array[middle] < search)
-      first = middle + 1;
-    if (array[middle] == search) {
-      printf(found, search, middle+1);
-      break;
-    }
-    else
-      last = middle - 1;
-
-    middle = (first + last)/2;
+  int x[10];
+  x[2] = 10;
+  if(x[2] == 10){
+    int y;
+    y = 10;
+    x[0] = y;
+    func(x[0]);
+  }else{
+    int messages;
+    messages = 100;
+    output(100);
   }
-  if (first > last)
-    printf(notfound, search);
 
-  return 0;
+  return x[0];
 }

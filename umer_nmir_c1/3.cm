@@ -1,25 +1,29 @@
 /*
   This program contains the following errors:
-    - Invalid expression in return statement "d << 8;"
-    - Invalid expression within if test condition, for example "if(i<n;)" is invalid syntax
-    - invalid return expression, for example "return f.d" f.d; is not a exp
+    - Undefined symbol, e.i. declaring int nums[10] but using num[0]
+    - Argument type does not match parameter type, for example "func(num[0])" where, func expects an int, but num[0] is Undefined
+    - Invalid index type (expected 'int') for the array variable (nums)
 */  
 
-int func(void) {
+int x[9];
+int func(int x){
+  x = 9;
+  return x;
+}
 
-    int d;
-    /*Invalid expression in  statement*/
-    d << 8;
+void funcVoid(void){
+    /*return; ohoh*/
+}
 
-   /*Invalid expression within if condition */
-  if(i<n;) {
-      print(hello);
-  }
+void main(void){
+    int var;
+    int nums[10];
 
-  if(j<n){
-      print(goodbye);
-  }
-/* Invalid expression in return statement  */
-  return f.d ;
+    /*Undefined symbol (num[])*/
+    var = func(num[0]);
 
+    /*Invalid index type (expected 'int') for the array variable (nums)*/
+    nums[funcVoid()] = x[0];
+
+       
 }

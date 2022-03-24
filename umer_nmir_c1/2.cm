@@ -1,24 +1,41 @@
  
 /*
   This program contains the following errors:
-    - invalid function declaration in a declaration list, for example "int helper.fun(void)" is an invalid func declaration 
-    - invalid expressions within parentheses, for example "(1+3+)" is invalid syntax
-    - invalid function argument in a call arg list, for example "func(fac; 1,2,2,2,2);" fac; is not a valid arg
+    - Returned expression does not match function's return type, for example "void adder(int,int)" returning VOID 
+    - Redefined symbol,i.e "increment(int x)" redefines x in the same scope
+    - Argument type does not match parameter type, for example "increment(adder)" where, increment expects an int, but adder is a function
 */
 
-/*  This will result in a error for DecList -> Invalid declaration of varaiable or function in declaration list */
-int helper.fun(void){
-  return; 
+int a;
+
+/* Error: Returned expression does not match function's return type */
+void adder(int x, int y) {
+    return x + y;
 }
-int global2;
 
-int func(void) {
-  int x; int fac;
-  x = input();
-  fac = 1;
-  /* This will result in a error for (Exp) -> Invalid expression within parentheses  */
-  hello = 2 * (1+3+);
+int increment(int x) {
+    /*Redefined symbol (x) */
+    int x;
+    x= 2; 
+    return x+1;
+}
 
-  /* This will result in a error for ExpList -> Invalid argument in argument list  */
-  func(fac; 1,2,2,2,2);
+
+int main(void) {
+    int b; 
+    int c;
+    int arr[3];
+    a = 1;
+    b = 2;
+    c = 3;
+
+    adder(a * b, c - 1);
+
+    /* Error: function call sends too many/too few arguments */
+     adder(a, b, c);
+
+    /*Argument type does not match parameter type*/
+    b = increment(c);
+
+    return increment(a); 
 }

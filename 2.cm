@@ -1,21 +1,4 @@
-/*umer testing merging with branch*/
-int x[9];
-int func(void){
-    return 9;
-}
-
 void funcVoid(void){
     return; 
 }
 
-void main(void){
-    int hello;
-    int num[2];
-
-    num[func()];
-
-    2<((x<func())*hello);
-    return funcVoid;
-   
-}
-/* make sure void x; gives error */

@@ -9,9 +9,15 @@ generate an executable program called "Main".
   Scanner:
     "java -cp /usr/share/java/cup.jar:. Scanner < fac.cm"
   Parser:
-    "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
+    java -cp /usr/share/java/cup.jar:. CM -FLAG FILEPATH
+    (FLAG options):
+      -a : perform syntactic analysis and output an abstract syntax tree (.abs) 
+      -s : perform type checking and output symbol tables (.sym) 
+      -c : compile and output TM assembly language code (.tm)
+    FILEPATH:
+      -not optional
+      -file must have a .cm extension
 
-  and the syntax tree will be displayed on the screen.
   To rebuild the parser, type "make clean" and type "make" again.
 
 compress:tar -czvf umer_nmir_c1.tgz umer_nmir_c1
