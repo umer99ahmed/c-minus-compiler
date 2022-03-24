@@ -128,10 +128,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // This function iterates through the function's body, obtains the ReturnExp, and compares the
     // types
     boolean hasReturn = false;
+    boolean hasIf = false;
     String returnExpError =
         "ERROR: Returned expression does not match function's return type at row ";
 
     while (body != null) {
+      if(body.head instanceof IfExp){
+        hasIf = true;
+      }
       if (body.head instanceof ReturnExp) {
         hasReturn = true;
         VarDec rExp = ((ReturnExp) body.head).exp.dtype;
@@ -145,7 +149,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
           if (aDec.typ.type != rType) {
             symbolErrors.add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
           }
-        } else {
+        } else if( rType != 1) {
           symbolErrors
               .add("ERROR: Invalid return type at row " + (((ReturnExp) body.head).exp.row + 1)
                   + ", column " + (((ReturnExp) body.head).exp.col + 1) + ".");
@@ -155,7 +159,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
     // For the case in which there is no return statement in a function that has a return type of
     // int
-    if (!hasReturn && rType == 0) {
+
+    if (!hasReturn && rType == 0 && !hasIf) {
       symbolErrors
           .add("ERROR: Function with return type of int is missing a return statement at row "
               + (dec.row + 1) + ", column " + (dec.col + 1) + ".");

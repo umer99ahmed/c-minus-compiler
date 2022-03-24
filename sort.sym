@@ -1,0 +1,37 @@
+The semantic analysis annotated tree:
+Entering the global scope: 
+    Entering the scope for function minloc
+        Entering a new block: 
+            Entering a new block: 
+            Leaving the new block: 
+        Leaving the new block: 
+        a: int[]
+        high: int
+        low: int
+        x: int
+        i: int
+        k: int
+    Leaving the scope for function minloc
+    Entering the scope for function sort
+        Entering a new block: 
+            t: int
+        Leaving the new block: 
+        a: int[]
+        high: int
+        low: int
+        i: int
+        k: int
+    Leaving the scope for function sort
+    Entering the scope for function main
+        Entering a new block: 
+        Leaving the new block: 
+        Entering a new block: 
+        Leaving the new block: 
+        i: int
+    Leaving the scope for function main
+    minloc: (int[], int, int) -> int
+    x: int[10]
+    main: (void) -> void
+    sort: (int[], int, int) -> void
+Leaving the global scope
+

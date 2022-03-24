@@ -19,7 +19,9 @@ parser code {:
        column of where the error occurred in the input as well as the
        reason for the error which is passed into the method in the
        String 'message'. */
+      public boolean hasError = false;
      public void report_error(String message, Object info) {
+        hasError = true;
    
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
@@ -62,6 +64,7 @@ parser code {:
        fatal error which is passed into the method in the object
        'message' and then exit.*/
     public void report_fatal_error(String message, Object info) {
+       hasError = true;
         report_error(message, info);
         System.exit(1);
     }
@@ -103,7 +106,10 @@ precedence left TIMES, OVER;
 start with program;
 
 program	            ::= declaration_list:d
-                        {: RESULT = d; :}
+                        {: 
+                           d.hasSyntacticErr = hasError;
+                           RESULT = d; 
+                        :}
                      ;
 
 declaration_list     ::= declaration_list:d1 declaration:d2 

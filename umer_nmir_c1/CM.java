@@ -49,7 +49,7 @@ class CM {
         ShowTreeVisitor visitorAbs = new ShowTreeVisitor();
         result.accept(visitorAbs, 0);
       }
-      if (SHOW_SYM && result != null) {
+      if (SHOW_SYM && result != null && ((DecList)result).hasSyntacticErr==false) {
         filename.append(".sym");
         PrintStream fileOutSym = new PrintStream(filename.toString());
         System.setOut(fileOutSym);

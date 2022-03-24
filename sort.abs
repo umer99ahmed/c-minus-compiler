@@ -1,0 +1,201 @@
+The abstract syntax tree is:
+ArrayDec: x
+    NameTy: int
+    IntExp: 10
+FunctionDec: minloc
+    NameTy: int
+    ArrayDec: a
+        NameTy: int
+    SimpleDec: low
+        NameTy: int
+    SimpleDec: high
+        NameTy: int
+    CompoundExp: 
+        SimpleDec: i
+            NameTy: int
+        SimpleDec: x
+            NameTy: int
+        SimpleDec: k
+            NameTy: int
+        AssignExp:
+            VarExp: 
+                SimpleVar: k
+            VarExp: 
+                SimpleVar: low
+        AssignExp:
+            VarExp: 
+                SimpleVar: x
+            VarExp: 
+                IndexVar: a
+                    VarExp: 
+                        SimpleVar: low
+        AssignExp:
+            VarExp: 
+                SimpleVar: i
+            OpExp: + 
+                VarExp: 
+                    SimpleVar: low
+                IntExp: 1
+        WhileExp:
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                VarExp: 
+                    SimpleVar: high
+            CompoundExp: 
+                IfExp:
+                    OpExp: < 
+                        VarExp: 
+                            IndexVar: a
+                                VarExp: 
+                                    SimpleVar: i
+                        VarExp: 
+                            SimpleVar: x
+                    CompoundExp: 
+                        AssignExp:
+                            VarExp: 
+                                SimpleVar: x
+                            VarExp: 
+                                IndexVar: a
+                                    VarExp: 
+                                        SimpleVar: i
+                        AssignExp:
+                            VarExp: 
+                                SimpleVar: k
+                            VarExp: 
+                                SimpleVar: i
+                    NilExp: 
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
+        ReturnExp: 
+            VarExp: 
+                SimpleVar: k
+FunctionDec: sort
+    NameTy: void
+    ArrayDec: a
+        NameTy: int
+    SimpleDec: low
+        NameTy: int
+    SimpleDec: high
+        NameTy: int
+    CompoundExp: 
+        SimpleDec: i
+            NameTy: int
+        SimpleDec: k
+            NameTy: int
+        AssignExp:
+            VarExp: 
+                SimpleVar: i
+            VarExp: 
+                SimpleVar: low
+        WhileExp:
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                OpExp: - 
+                    VarExp: 
+                        SimpleVar: high
+                    IntExp: 1
+            CompoundExp: 
+                SimpleDec: t
+                    NameTy: int
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: k
+                    CallExp: minloc
+                        VarExp: 
+                            SimpleVar: a
+                        VarExp: 
+                            SimpleVar: i
+                        VarExp: 
+                            SimpleVar: high
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: t
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: k
+                AssignExp:
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: k
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: i
+                AssignExp:
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: i
+                    VarExp: 
+                        SimpleVar: t
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
+FunctionDec: main
+    NameTy: void
+    CompoundExp: 
+        SimpleDec: i
+            NameTy: int
+        AssignExp:
+            VarExp: 
+                SimpleVar: i
+            IntExp: 0
+        WhileExp:
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                IntExp: 10
+            CompoundExp: 
+                AssignExp:
+                    VarExp: 
+                        IndexVar: x
+                            VarExp: 
+                                SimpleVar: i
+                    CallExp: input
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
+        CallExp: sort
+            VarExp: 
+                SimpleVar: x
+            IntExp: 0
+            IntExp: 10
+        AssignExp:
+            VarExp: 
+                SimpleVar: i
+            IntExp: 0
+        WhileExp:
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                IntExp: 10
+            CompoundExp: 
+                CallExp: output
+                    VarExp: 
+                        IndexVar: x
+                            VarExp: 
+                                SimpleVar: i
+                AssignExp:
+                    VarExp: 
+                        SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
