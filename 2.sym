@@ -1,7 +1,0 @@
-The semantic analysis annotated tree:
-Entering the global scope: 
-    Entering the scope for function funcVoid
-    Leaving the scope for function funcVoid
-    funcVoid: (void) -> void
-Leaving the global scope
-
