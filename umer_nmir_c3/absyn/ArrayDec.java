@@ -1,11 +1,11 @@
 package absyn;
 
 public class ArrayDec extends VarDec {
-  public NameTy typ; 
+  public NameTy typ;
   public String name;
-  public IntExp size; 
+  public IntExp size;
 
-  public ArrayDec ( int row, int col, NameTy typ,String name, IntExp size) {
+  public ArrayDec(int row, int col, NameTy typ, String name, IntExp size) {
     this.row = row;
     this.col = col;
     this.typ = typ;
@@ -13,7 +13,7 @@ public class ArrayDec extends VarDec {
     this.size = size;
   }
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
+    visitor.visit(this, level, isAddr);
   }
 }

@@ -3,6 +3,7 @@ package absyn;
 public class IndexVar extends Var {
   public String name;
   public Exp index;
+  public ArrayDec relatedDef;
 
   public IndexVar( int row, int col, String name, Exp index ) {
     this.row = row;
@@ -11,7 +12,7 @@ public class IndexVar extends Var {
     this.index = index;
   }
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept( AbsynVisitor visitor, int level, boolean isAddr ) {
+    visitor.visit( this, level, isAddr );
   }
 }

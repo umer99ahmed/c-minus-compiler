@@ -4,7 +4,7 @@ void func(int a){
   a = input();
   output(a);
 }
-
+int z;
 int main(void)
 {
   int x[10];

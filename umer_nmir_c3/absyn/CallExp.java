@@ -3,6 +3,7 @@ package absyn;
 public class CallExp extends Exp {
   public String func;
   public ExpList args;
+  public FunctionDec relatedDef;
 
   public CallExp( int row, int col, String func, ExpList args ) {
     this.row = row;
@@ -11,7 +12,7 @@ public class CallExp extends Exp {
     this.args = args;
   }
   
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept( AbsynVisitor visitor, int level, boolean isAddr) {
+    visitor.visit( this, level, isAddr );
   }
 }

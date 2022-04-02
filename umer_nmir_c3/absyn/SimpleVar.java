@@ -2,6 +2,7 @@ package absyn;
 
 public class SimpleVar extends Var {
   public String name;
+  public SimpleDec relatedDef; 
 
   public SimpleVar( int row, int col, String name ) {
     this.row = row;
@@ -9,7 +10,7 @@ public class SimpleVar extends Var {
     this.name = name;
   }
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept( AbsynVisitor visitor, int level, boolean isAddr ) {
+    visitor.visit( this, level, isAddr );
   }
 }

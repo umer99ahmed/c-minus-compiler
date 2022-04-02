@@ -11,11 +11,11 @@ public class CompoundExp extends Exp {
     this.exps = exps;
   }
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept( AbsynVisitor visitor, int level, boolean isAddr ) {
+    visitor.visit( this, level, isAddr );
   }
 
-  public void accept( AbsynVisitor visitor, int level, boolean isPreceded ) {
-    visitor.visit( this, level, isPreceded );
+  public void accept( AbsynVisitor visitor, int level, boolean isPreceded,  boolean isAddr) {
+    visitor.visit( this, level, isPreceded, isAddr );
   }
 }
