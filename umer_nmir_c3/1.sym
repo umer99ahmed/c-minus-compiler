@@ -1,0 +1,19 @@
+The semantic analysis annotated tree:
+Entering the global scope: 
+    Entering the scope for function func
+        a: int
+    Leaving the scope for function func
+    Entering the scope for function main
+        Entering a new block: 
+            y: int
+        Leaving the new block: 
+        Entering a new block: 
+            messages: int
+        Leaving the new block: 
+        x: int[10]
+    Leaving the scope for function main
+    func: (int) -> void
+    z: int
+    main: (void) -> int
+Leaving the global scope
+

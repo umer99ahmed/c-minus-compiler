@@ -8,60 +8,114 @@ public class CodeGenerator implements AbsynVisitor {
   // constructor for initialization and all emitting routines
   static int emitLoc = 0; // points to the current instruction we are generating (may go back to an earlier location for backpatching)
   static int highEmitLoc = 0; // points to the next available space so that we can continue adding new instructions
+  final int ac = 0;
+  final int ac1 = 1;
+  final int fp = 5;
+  final int gp = 6;
+  final int pc = 7;
 
-  // int emitSkip(int distance) {
-  //   int i = emitLoc;
-  //   emitLoc += distance;
-  //   if (highEmitLoc < emitLoc)
-  //     highEmitLoc = emitLoc;
-  //   return i;
-  // }
+  /* Returns location of skipped instruction, skips instruction, and matches highEmitLoc (if necessary) */
+  /* distance = number of instructions to skip (usually 1) */
+  private int emitSkip(int distance) {
+    int i = emitLoc;
+    emitLoc += distance;
+    if (highEmitLoc < emitLoc)
+      highEmitLoc = emitLoc;
+    return i;
+  }
 
-  // void emitBackup( int loc ) {
-  //   if( loc > highEmitLoc )
-  //     emitComment( “BUG in emitBackup” );
-  //   emitLoc = loc;
-  // }
+  private void emitBackup( int loc ) {
+    if( loc > highEmitLoc )
+      emitComment( "BUG in emitBackup", true );
+    emitLoc = loc;
+  }
 
-  // void emitRestore( void ) {
-  //   emitLoc = highEmitLoc;
-  // }
+  private void emitComment( String comment, boolean isError ) {
+    if(isError){
+      System.err.println( comment );
+    }else{
+      System.out.println( comment );
+    }
+  }
+  // Letting emitLoc continue from where it left off after finishing jump instruction
+  private void emitRestore() {
+    emitLoc = highEmitLoc;
+  }
 
-  // void emitRM_Abs( char *op, int r, int a, char *c ) {
-  //     fprintf( code, “%3d: %5s %d, %d(%d) “, emitLoc, op, r, a – (emitLoc + 1), pc );
-  //     fprintf( code, “\t%s\n”, c );
-  //     ++emitLoc;
-  //     if( highEmitLoc < emitLoc )
-  //       highEmitLoc = emitLoc;
-  // }
+  void emitRM_Abs( String op, int r, int a, String comment ) {
+      // fprintf( code, “%3d: %5s %d, %d(%d) “, emitLoc, op, r, a – (emitLoc + 1), pc );
+      // fprintf( code, “\t%s\n”, c );
+      System.out.print(emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + pc + ")");
+      System.out.println( "\t" + comment );
+      ++emitLoc;
+      if( highEmitLoc < emitLoc )
+        highEmitLoc = emitLoc;
+  }
 
-  // void emitRO( char *op, int r, int s, int t, char *c ) {
-  //   fprintf( code, “%3d: %5s %d, %d, %d”, emitLoc, op, r, s, t );
-  //   fprintf( code, “\t%s\n”, c );
-  //   ++emitLoc;
-  //   if( highEmitLoc < emitLoc )
-  //     highEmitLoc = emitLoc;
-  // }
+  private void emitRO(  String op, int r, int s, int t, String comment ) {
+    // fprintf( code, “%3d: %5s %d, %d, %d”, emitLoc, op, r, s, t );
+    // fprintf( code, “\t%s\n”, c );
+    System.out.print(emitLoc + ": " +op + " " + r + "," + s + "," + t);
+    System.out.println( "\t" + comment );
+    ++emitLoc;
+    if( highEmitLoc < emitLoc )
+      highEmitLoc = emitLoc;
+  }
 
-  // void emitRM( char *op, int r, int d, int s, char *c ) {
-  //   fprintf( code, “%3d: %5s %d, %d(%d)”, emitLoc, op, r, d, s );
-  //   fprintf( code, “\t%s\n”, c );
-  //   ++emitLoc;
-  //   if( highEmitLoc < emitLoc )
-  //     highEmitLoc = emitLoc;
-  // }
+  private void emitRM( String op, int r, int d, int s, String comment ) {
+    //System.err.println( “%3d: %5s %d, %d(%d)”, emitLoc, op, r, d, s );
+    System.out.print(emitLoc + ": " +op + " " + r + "," + d + "(" + s + ")");
+    // System.err.println( “\t%s\n”, c );
+    System.out.println( "\t" + comment );
+    ++emitLoc;
+    if( highEmitLoc < emitLoc )
+      highEmitLoc = emitLoc;
+  }
 
   public void visit(Absyn trees) { // wrapper for post-order traversal
     System.err.println("CODE GENERATION START!");
+    emitComment("* Standard prelude:", false);
     // generate the prelude
     // 0: LD 6, 0(0) load gp with maxaddr
-    // emitRM(“LD”, gp, 0, ac, “load up with maxaddr”);
+    emitRM("LD", gp, 0, ac, "load up with maxaddr");
     // 1: LDA 5, 0(6) copy gp to fp
+    emitRM("LDA", fp, 0, gp, "copy gp to fp");
     // 2: ST 0, 0(0) clear content at loc 0
-    //  System.err.println("0: LD 6, 0(0) load gp with maxaddr");
-    //  System.err.println("1: LDA 5, 0(6) copy gp to fp");
-    //  System.err.println("2: ST 0, 0(0) clear content at loc 0");
+    emitRM("ST", ac, 0, ac, "clear content at loc 0");
+    
     // generate the i/o routines
+    emitComment("* Jump around i/o routines here", false);
+    int skippedLoc = emitSkip(1); //stores 3, emitLoc incremented
+    emitComment("* code for input routine", false);
+    //   4:     ST  0,-1(5) 	store return
+    emitRM("ST", ac, -1, fp, "store return");
+    //   5:     IN  0,0,0 	input
+    emitRO("IN", 0, 0, 0, "input");
+
+    //   6:     LD  7,-1(5) 	return to caller
+    emitRM("LD", pc, -1, fp, "return to caller");
+    emitComment("* code for output routine", false);
+
+    //   7:     ST  0,-1(5) 	store return
+    emitRM("ST", ac, -1, fp, "store return");
+    //   8:     LD  0,-2(5) 	load output value
+    emitRM("LD", ac, -2, fp, "load output value");
+
+    //   9:    OUT  0,0,0 	output
+    emitRO("OUT", 0, 0, 0, "input");
+    //  10:     LD  7,-1(5) 	return to caller
+    emitRM("LD", pc, -1, fp, "return to caller");
+    int savedLoc = emitSkip(0);
+    emitBackup(skippedLoc);
+    emitRM_Abs("LDA", pc, savedLoc, "jump around i/o code");
+    emitRestore();
+    emitComment("* End of standard prelude.", false);
+
+
+  //   3:    LDA  7,7(7) 	jump around i/o code
+      // emitRM("LD", ac, -2, fp, "load output value");
+
+  // * End of standard prelude.
     // call the visit method for DecList
     trees.accept(this, 0, false);
     // visit(trees, 0, false);

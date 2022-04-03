@@ -40,6 +40,7 @@ class CM {
       parser p = new parser(new Lexer(new FileReader(argv[filenameIndex])));
       StringBuilder filename =
           new StringBuilder(argv[filenameIndex].substring(0, argv[filenameIndex].length() - 3));
+      String noExtFilename = filename.toString();
       // System.out.println(filename.toString());
 
       Absyn result = (Absyn) (p.parse().value);
@@ -60,6 +61,11 @@ class CM {
         System.out.println("The semantic analysis annotated tree:");
         SemanticAnalyzer visitorSym = new SemanticAnalyzer();
         result.accept(visitorSym, 0, false);
+
+        // filename = noExtFilename + ".tm";
+        fileOutSym = new PrintStream( noExtFilename + ".tm");
+        System.setOut(fileOutSym);
+
 
         System.err.println("code gerneration");
         CodeGenerator cmcode = new CodeGenerator();
