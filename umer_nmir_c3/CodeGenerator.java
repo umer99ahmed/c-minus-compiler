@@ -3,18 +3,24 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 public class CodeGenerator implements AbsynVisitor {
+  int NEST_LEVEL = 0;
   int mainEntry;
   int globalOffset = 0; // points to bottom of global stackframe (gp register points to top)
   // constructor for initialization and all emitting routines
-  static int emitLoc = 0; // points to the current instruction we are generating (may go back to an earlier location for backpatching)
-  static int highEmitLoc = 0; // points to the next available space so that we can continue adding new instructions
+  static int emitLoc = 0; // points to the current instruction we are generating (may go back to an
+                          // earlier location for backpatching)
+  static int highEmitLoc = 0; // points to the next available space so that we can continue adding
+                              // new instructions
   final int ac = 0;
   final int ac1 = 1;
   final int fp = 5;
   final int gp = 6;
   final int pc = 7;
 
-  /* Returns location of skipped instruction, skips instruction, and matches highEmitLoc (if necessary) */
+  /*
+   * Returns location of skipped instruction, skips instruction, and matches highEmitLoc (if
+   * necessary)
+   */
   /* distance = number of instructions to skip (usually 1) */
   private int emitSkip(int distance) {
     int i = emitLoc;
@@ -24,51 +30,52 @@ public class CodeGenerator implements AbsynVisitor {
     return i;
   }
 
-  private void emitBackup( int loc ) {
-    if( loc > highEmitLoc )
-      emitComment( "BUG in emitBackup", true );
+  private void emitBackup(int loc) {
+    if (loc > highEmitLoc)
+      emitComment("BUG in emitBackup", true);
     emitLoc = loc;
   }
 
-  private void emitComment( String comment, boolean isError ) {
-    if(isError){
-      System.err.println( comment );
-    }else{
-      System.out.println( comment );
+  private void emitComment(String comment, boolean isError) {
+    if (isError) {
+      System.err.println(comment);
+    } else {
+      System.out.println(comment);
     }
   }
+
   // Letting emitLoc continue from where it left off after finishing jump instruction
   private void emitRestore() {
     emitLoc = highEmitLoc;
   }
 
-  void emitRM_Abs( String op, int r, int a, String comment ) {
-      // fprintf( code, "%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc );
-      // fprintf( code, "\t%s\n", c );
-      System.out.print(emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + pc + ")");
-      System.out.println( "\t" + comment );
-      ++emitLoc;
-      if( highEmitLoc < emitLoc )
-        highEmitLoc = emitLoc;
-  }
-
-  private void emitRO(  String op, int r, int s, int t, String comment ) {
-    // fprintf( code, "%3d: %5s %d, %d, %d", emitLoc, op, r, s, t );
+  void emitRM_Abs(String op, int r, int a, String comment) {
+    // fprintf( code, "%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc );
     // fprintf( code, "\t%s\n", c );
-    System.out.print(emitLoc + ": " +op + " " + r + "," + s + "," + t);
-    System.out.println( "\t" + comment );
+    System.out.print(emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + pc + ")");
+    System.out.println("\t" + comment);
     ++emitLoc;
-    if( highEmitLoc < emitLoc )
+    if (highEmitLoc < emitLoc)
       highEmitLoc = emitLoc;
   }
 
-  private void emitRM( String op, int r, int d, int s, String comment ) {
-    //System.err.println( "%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s );
-    System.out.print(emitLoc + ": " +op + " " + r + "," + d + "(" + s + ")");
-    // System.err.println( "\t%s\n", c );
-    System.out.println( "\t" + comment );
+  private void emitRO(String op, int r, int s, int t, String comment) {
+    // fprintf( code, "%3d: %5s %d, %d, %d", emitLoc, op, r, s, t );
+    // fprintf( code, "\t%s\n", c );
+    System.out.print(emitLoc + ": " + op + " " + r + "," + s + "," + t);
+    System.out.println("\t" + comment);
     ++emitLoc;
-    if( highEmitLoc < emitLoc )
+    if (highEmitLoc < emitLoc)
+      highEmitLoc = emitLoc;
+  }
+
+  private void emitRM(String op, int r, int d, int s, String comment) {
+    // System.err.println( "%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s );
+    System.out.print(emitLoc + ": " + op + " " + r + "," + d + "(" + s + ")");
+    // System.err.println( "\t%s\n", c );
+    System.out.println("\t" + comment);
+    ++emitLoc;
+    if (highEmitLoc < emitLoc)
       highEmitLoc = emitLoc;
   }
 
@@ -82,32 +89,32 @@ public class CodeGenerator implements AbsynVisitor {
     emitRM("LDA", fp, 0, gp, "copy gp to fp");
     // 2: ST 0, 0(0) clear content at loc 0
     emitRM("ST", ac, 0, ac, "clear content at loc 0");
-    
+
     // generate the i/o routines
     emitComment("* Jump around i/o routines here", false);
-    int skippedLoc = emitSkip(1); //stores 3, emitLoc incremented
+    int skippedLoc = emitSkip(1); // stores 3, emitLoc incremented
     emitComment("* code for input routine", false);
-    //   4:     ST  0,-1(5) 	store return
+    // 4: ST 0,-1(5) store return
     emitRM("ST", ac, -1, fp, "store return");
-    //   5:     IN  0,0,0 	input
+    // 5: IN 0,0,0 input
     emitRO("IN", 0, 0, 0, "input");
 
-    //   6:     LD  7,-1(5) 	return to caller
+    // 6: LD 7,-1(5) return to caller
     emitRM("LD", pc, -1, fp, "return to caller");
     emitComment("* code for output routine", false);
 
-    //   7:     ST  0,-1(5) 	store return
+    // 7: ST 0,-1(5) store return
     emitRM("ST", ac, -1, fp, "store return");
-    //   8:     LD  0,-2(5) 	load output value
+    // 8: LD 0,-2(5) load output value
     emitRM("LD", ac, -2, fp, "load output value");
 
-    //   9:    OUT  0,0,0 	output
+    // 9: OUT 0,0,0 output
     emitRO("OUT", 0, 0, 0, "input");
-    //  10:     LD  7,-1(5) 	return to caller
+    // 10: LD 7,-1(5) return to caller
     emitRM("LD", pc, -1, fp, "return to caller");
     int savedLoc = emitSkip(0);
     emitBackup(skippedLoc);
-    //   3:    LDA  7,7(7) 	jump around i/o code
+    // 3: LDA 7,7(7) jump around i/o code
     emitRM_Abs("LDA", pc, savedLoc, "jump around i/o code");
     emitRestore();
     emitComment("* End of standard prelude.", false);
@@ -118,28 +125,28 @@ public class CodeGenerator implements AbsynVisitor {
     // visit(trees, 0, false);
 
     // generate finale
-    
+
     // 81: ST 5, -1(5) push ofp
-    emitRM( "ST", fp, globalOffset+0, fp, "push ofp" );
+    emitRM("ST", fp, globalOffset + 0, fp, "push ofp");
     // 82: LDA 5, -1(5) push frame
-    emitRM( "LDA", fp, globalOffset, fp, "push frame" );
+    emitRM("LDA", fp, globalOffset, fp, "push frame");
     // 83: LDA 0, 1(7) load ac with ret ptr
-    emitRM( "LDA", ac, 1, pc, "load ac with ret ptr" );
+    emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
     // 84: LDA 7, -35(7) jump to main loc
-    emitRM_Abs( "LDA", pc, mainEntry, "jump to main loc" );
+    emitRM_Abs("LDA", pc, mainEntry, "jump to main loc");
     // 85: LD 5, 0(5) pop frame
-    emitRM( "LD", fp, 0, fp, "pop frame" );
+    emitRM("LD", fp, 0, fp, "pop frame");
     // 86: HALT 0, 0, 0
-    emitRO( "HALT", 0, 0, 0, "" );
-    
+    emitRO("HALT", 0, 0, 0, "");
+
 
   } // implement all visit methods in AbsynVisitor
 
   public void visit(DecList decs, int offset, boolean isAddress) {
     System.err.println("CODE GENERATION DECLIST!");
-    while( decs != null ) {
-      if(decs.head != null){
-        decs.head.accept( this, offset, isAddress );
+    while (decs != null) {
+      if (decs.head != null) {
+        decs.head.accept(this, offset, isAddress);
       }
       decs = decs.tail;
     }
@@ -152,72 +159,147 @@ public class CodeGenerator implements AbsynVisitor {
     // /* code for i/o routines */
     // ...
     // /* code for finale */
-    
-    // indent(level);
-    System.out.println("* processing function: "+ dec.func);
 
-      // System.out.print("12: ST 0, -1(5) save return address\n13: LD 7, -1(5) return back to the caller\n11: LDA 7, 2(7) jump forward to finale\n");
-      int skippedLoc = emitSkip(1); //stores 11, emitLoc incremented
-      
-      if(dec.func.equals("main")){
-        mainEntry = emitLoc;
-      }
-      dec.funaddr = emitLoc;
-      // 12: ST 0, -1(5) save return address
-      emitRM("ST", ac, -1, fp, "save return address");
-      // 13: LD 7, -1(5) return back to the caller
-      emitRM("LD", pc, -1, fp, "return back to the caller");
-      int savedLoc = emitSkip(0); //14
-      emitBackup(skippedLoc);
-      // 11: LDA 7, 2(7) jump forward to finale
-      emitRM_Abs("LDA", pc, savedLoc, "jump forward to finale");
-     
-      emitRestore();
-    
+    // indent(level);
+    System.out.println("* processing function: " + dec.func);
+
+    // System.out.print("12: ST 0, -1(5) save return address\n13: LD 7, -1(5) return back to the
+    // caller\n11: LDA 7, 2(7) jump forward to finale\n");
+    int skippedLoc = emitSkip(1); // stores 11, emitLoc incremented
+
+    if (dec.func.equals("main")) {
+      mainEntry = emitLoc;
+    }
+    dec.funaddr = emitLoc;
+    // 12: ST 0, -1(5) save return address
+    emitRM("ST", ac, -1, fp, "save return address");
+
     // level++;
 
     // if (dec.result != null) {
-    //   dec.result.accept(this, level, isAddr);
+    // dec.result.accept(this, level, isAddr);
     // }
     // if (dec.params != null) {
-    //   dec.params.accept(this, level, isAddr);
+    // dec.params.accept(this, level, isAddr);
     // }
-    // if (dec.body != null) {
-    //   dec.body.accept(this, level, isAddr);
-    // }
+    if (dec.body != null) {
+      dec.body.accept(this, offset - 2, isAddr);
+    }
+
+    // 13: LD 7, -1(5) return back to the caller
+    emitRM("LD", pc, -1, fp, "return back to the caller");
+    int savedLoc = emitSkip(0); // 14
+    emitBackup(skippedLoc);
+    // 11: LDA 7, 2(7) jump forward to finale
+    emitRM_Abs("LDA", pc, savedLoc, "jump forward to finale");
+    emitRestore();
   }
 
   public void visit(SimpleDec dec, int offset, boolean isAddr) {
-    // how do we set nestLevel? dec.offset would depend on that?
-    dec.offset = globalOffset;
-    dec.nestLevel = 0;
-    globalOffset--;
+    // TODO: how do we set nestLevel? dec.offset would depend on that?
+
+    dec.nestLevel = NEST_LEVEL;
+    if (dec.nestLevel == 0) {
+      globalOffset--;// -1
+      dec.offset = globalOffset + 1;// 0
+    } else {
+      // how do we handle fp?
+    }
+
     // indent(level);
     // System.out.println("SimpleDec: " + dec.name);
     // level++;
     // if (dec.typ != null) {
-    //   dec.typ.accept(this, level, isAddr);
+    // dec.typ.accept(this, level, isAddr);
     // }
   }
 
   public void visit(ArrayDec dec, int offset, boolean isAddr) {
+    dec.nestLevel = NEST_LEVEL;
+    if (dec.nestLevel == 0) {
+
+      globalOffset -= dec.size.value;// -10
+      dec.offset = globalOffset + 1;// -9
+    }
+
+
     // indent(level);
     // System.out.println("ArrayDec: " + dec.name);
     // level++;
     // if (dec.typ != null) {
-    //   dec.typ.accept(this, level, isAddr);
+    // dec.typ.accept(this, level, isAddr);
     // }
     // if (dec.size != null) {
-    //   dec.size.accept(this, level, isAddr);
+    // dec.size.accept(this, level, isAddr);
     // }
   }
 
+  public void visit(CompoundExp exp, int offset, boolean isAddr) {
+    System.err.println("CompoundExp: ");
+    // if (exp.decs != null) {
+    // exp.decs.accept(this, level, isAddr);
+    // }
+
+    if (exp.exps != null) {
+      exp.exps.accept(this, offset, isAddr);
+    }
+
+  }
+
+  public void visit(CompoundExp exp, int level, boolean isPreceded, boolean isAddr) {}
 
 
+  public void visit(ExpList expList, int offset, boolean isAddr) {
+    while (expList != null) {
+      if (expList.head != null) {
+        expList.head.accept(this, offset, isAddr);
+      }
+      expList = expList.tail;
+    }
+  }
+
+  public void visit(AssignExp exp, int offset, boolean isAddr) {
+    /*
+     * looking up id: fac | storing addy of LHS into reg0 
+     22: LDA 0,-3(5) load id address <- id | in
+     * the next spot of dMem, store addy of fac? 
+     23: ST 0,-4(5) op: push left -> constant | store
+     * '1' into reg0 24: LDC 0,1(0) load const <- constant | load addy of fac into reg1, then store
+     * 1 into addy at reg1? which is fac 25: LD 1,-4(5) op: load left 26: ST 0,0(1) assign: store
+     * value
+     */
+    // indent(level);
+    System.err.println("AssignExp:");
+    // level++;
+    if (exp.lhs != null) {
+      System.err.println("here:");
+
+      exp.lhs.accept(this, offset, true);
+    }
+    // if (exp.rhs != null) {
+    // exp.rhs.accept(this, offset, isAddr);
+    // }
+  }
   // public void visit( DecList decList, int level, boolean isAddr ){ BEFORE
   // }
 
+  public void visit(VarExp exp, int offset, boolean isAddr) {
+    System.err.println("VarExp: ");
+    if (exp.variable != null) {
+      exp.variable.accept(this, offset, isAddr);
+    }
+  }
 
+  public void visit(SimpleVar var, int offset, boolean isAddr) {
+    
+    if(var.relatedDef.nestLevel == 0 ){
+      emitComment("* looking up id: "+var.name, false);
+      emitRM("LDA", ac, var.relatedDef.offset, gp, "load id address");
+    }
+
+    System.err.println("SimpleVar: " + var.name);
+
+  }
 
   final static int SPACES = 4;
 
@@ -226,17 +308,6 @@ public class CodeGenerator implements AbsynVisitor {
       System.out.print(" ");
   }
 
-  public void visit(AssignExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("AssignExp:");
-    level++;
-    if (exp.lhs != null) {
-      exp.lhs.accept(this, level, isAddr);
-    }
-    if (exp.rhs != null) {
-      exp.rhs.accept(this, level, isAddr);
-    }
-  }
 
   public void visit(CallExp exp, int level, boolean isAddr) {
     indent(level);
@@ -248,33 +319,8 @@ public class CodeGenerator implements AbsynVisitor {
 
   }
 
-  public void visit(CompoundExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("CompoundExp: ");
-    level++;
-    if (exp.decs != null) {
-      exp.decs.accept(this, level, isAddr);
-    }
-
-    if (exp.exps != null) {
-      exp.exps.accept(this, level, isAddr);
-    }
-
-  }
-
-  public void visit(CompoundExp exp, int level, boolean isPreceded, boolean isAddr) {}
 
 
-  public void visit(ExpList expList, int level, boolean isAddr) {
-    while (expList != null) {
-      if (expList.head != null) {
-        expList.head.accept(this, level, isAddr);
-      }
-      expList = expList.tail;
-    }
-  }
-
- 
   public void visit(IfExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("IfExp:");
@@ -369,10 +415,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
 
-  public void visit(SimpleVar var, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("SimpleVar: " + var.name);
-  }
 
   public void visit(IndexVar var, int level, boolean isAddr) {
     indent(level);
@@ -392,14 +434,6 @@ public class CodeGenerator implements AbsynVisitor {
     }
   }
 
-  public void visit(VarExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("VarExp: ");
-    level++;
-    if (exp.variable != null) {
-      exp.variable.accept(this, level, isAddr);
-    }
-  }
 
   public void visit(WhileExp exp, int level, boolean isAddr) {
     indent(level);

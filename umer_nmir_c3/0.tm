@@ -18,8 +18,8 @@
 12: ST 0,-1(5)	save return address
 13: LD 7,-1(5)	return back to the caller
 11: LDA 7,2(7)	jump forward to finale
-14: ST 5,0(5)	push ofp
-15: LDA 5,0(5)	push frame
+14: ST 5,-11(5)	push ofp
+15: LDA 5,-11(5)	push frame
 16: LDA 0,1(7)	load ac with ret ptr
 17: LDA 7,-6(7)	jump to main loc
 18: LD 5,0(5)	pop frame

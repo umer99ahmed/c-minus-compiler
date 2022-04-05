@@ -1,4 +1,6 @@
 /*int x; int y;*/
-
+int x;
+int arr[10];
 void main(void) {
+    x = 2;
 }

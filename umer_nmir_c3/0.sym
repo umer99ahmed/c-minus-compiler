@@ -2,6 +2,8 @@ The semantic analysis annotated tree:
 Entering the global scope: 
     Entering the scope for function main
     Leaving the scope for function main
+    arr: int[10]
+    x: int
     main: (void) -> void
 Leaving the global scope
 

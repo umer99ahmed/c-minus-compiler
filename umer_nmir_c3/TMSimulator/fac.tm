@@ -40,13 +40,13 @@
 * <- op
 * -> op
 * -> id
-* looking up id: fac
+* looking up id: fac | storing addy of fac into reg0
  22:    LDA  0,-3(5) 	load id address
-* <- id
+* <- id | in the next spot of dMem, store addy of fac?
  23:     ST  0,-4(5) 	op: push left
-* -> constant
+* -> constant | store '1' into reg0
  24:    LDC  0,1(0) 	load const
-* <- constant
+* <- constant | load addy of fac into reg1, then store 1 into addy at reg1? which is fac
  25:     LD  1,-4(5) 	op: load left
  26:     ST  0,0(1) 	assign: store value
 * <- op

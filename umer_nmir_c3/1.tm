@@ -14,3 +14,17 @@
 10: LD 7,-1(5)	return to caller
 3: LDA 7,7(7)	jump around i/o code
 * End of standard prelude.
+* processing function: func
+12: ST 0,-1(5)	save return address
+13: LD 7,-1(5)	return back to the caller
+11: LDA 7,2(7)	jump forward to finale
+* processing function: main
+15: ST 0,-1(5)	save return address
+16: LD 7,-1(5)	return back to the caller
+14: LDA 7,2(7)	jump forward to finale
+17: ST 5,-1(5)	push ofp
+18: LDA 5,-1(5)	push frame
+19: LDA 0,1(7)	load ac with ret ptr
+20: LDA 7,-6(7)	jump to main loc
+21: LD 5,0(5)	pop frame
+22: HALT 0,0,0	
