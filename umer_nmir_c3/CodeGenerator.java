@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class CodeGenerator implements AbsynVisitor {
   int mainEntry;
-  int globalOffset; // points to bottom of global stackframe (gp register points to top)
+  int globalOffset = 0; // points to bottom of global stackframe (gp register points to top)
   // constructor for initialization and all emitting routines
   static int emitLoc = 0; // points to the current instruction we are generating (may go back to an earlier location for backpatching)
   static int highEmitLoc = 0; // points to the next available space so that we can continue adding new instructions
@@ -43,8 +43,8 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   void emitRM_Abs( String op, int r, int a, String comment ) {
-      // fprintf( code, “%3d: %5s %d, %d(%d) “, emitLoc, op, r, a – (emitLoc + 1), pc );
-      // fprintf( code, “\t%s\n”, c );
+      // fprintf( code, "%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc );
+      // fprintf( code, "\t%s\n", c );
       System.out.print(emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + pc + ")");
       System.out.println( "\t" + comment );
       ++emitLoc;
@@ -53,8 +53,8 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   private void emitRO(  String op, int r, int s, int t, String comment ) {
-    // fprintf( code, “%3d: %5s %d, %d, %d”, emitLoc, op, r, s, t );
-    // fprintf( code, “\t%s\n”, c );
+    // fprintf( code, "%3d: %5s %d, %d, %d", emitLoc, op, r, s, t );
+    // fprintf( code, "\t%s\n", c );
     System.out.print(emitLoc + ": " +op + " " + r + "," + s + "," + t);
     System.out.println( "\t" + comment );
     ++emitLoc;
@@ -63,9 +63,9 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   private void emitRM( String op, int r, int d, int s, String comment ) {
-    //System.err.println( “%3d: %5s %d, %d(%d)”, emitLoc, op, r, d, s );
+    //System.err.println( "%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s );
     System.out.print(emitLoc + ": " +op + " " + r + "," + d + "(" + s + ")");
-    // System.err.println( “\t%s\n”, c );
+    // System.err.println( "\t%s\n", c );
     System.out.println( "\t" + comment );
     ++emitLoc;
     if( highEmitLoc < emitLoc )
@@ -107,34 +107,114 @@ public class CodeGenerator implements AbsynVisitor {
     emitRM("LD", pc, -1, fp, "return to caller");
     int savedLoc = emitSkip(0);
     emitBackup(skippedLoc);
+    //   3:    LDA  7,7(7) 	jump around i/o code
     emitRM_Abs("LDA", pc, savedLoc, "jump around i/o code");
     emitRestore();
     emitComment("* End of standard prelude.", false);
 
 
-  //   3:    LDA  7,7(7) 	jump around i/o code
-      // emitRM("LD", ac, -2, fp, "load output value");
-
-  // * End of standard prelude.
     // call the visit method for DecList
     trees.accept(this, 0, false);
     // visit(trees, 0, false);
+
     // generate finale
+    
+    // 81: ST 5, -1(5) push ofp
+    emitRM( "ST", fp, globalOffset+0, fp, "push ofp" );
+    // 82: LDA 5, -1(5) push frame
+    emitRM( "LDA", fp, globalOffset, fp, "push frame" );
+    // 83: LDA 0, 1(7) load ac with ret ptr
+    emitRM( "LDA", ac, 1, pc, "load ac with ret ptr" );
+    // 84: LDA 7, -35(7) jump to main loc
+    emitRM_Abs( "LDA", pc, mainEntry, "jump to main loc" );
+    // 85: LD 5, 0(5) pop frame
+    emitRM( "LD", fp, 0, fp, "pop frame" );
+    // 86: HALT 0, 0, 0
+    emitRO( "HALT", 0, 0, 0, "" );
+    
 
   } // implement all visit methods in AbsynVisitor
 
   public void visit(DecList decs, int offset, boolean isAddress) {
     System.err.println("CODE GENERATION DECLIST!");
+    while( decs != null ) {
+      if(decs.head != null){
+        decs.head.accept( this, offset, isAddress );
+      }
+      decs = decs.tail;
+    }
 
   }
 
+  public void visit(FunctionDec dec, int offset, boolean isAddr) {
+    System.err.println("CODE GENERATION FUNCTION!");
+
+    // /* code for i/o routines */
+    // ...
+    // /* code for finale */
+    
+    // indent(level);
+    System.out.println("* processing function: "+ dec.func);
+
+      // System.out.print("12: ST 0, -1(5) save return address\n13: LD 7, -1(5) return back to the caller\n11: LDA 7, 2(7) jump forward to finale\n");
+      int skippedLoc = emitSkip(1); //stores 11, emitLoc incremented
+      
+      if(dec.func.equals("main")){
+        mainEntry = emitLoc;
+      }
+      dec.funaddr = emitLoc;
+      // 12: ST 0, -1(5) save return address
+      emitRM("ST", ac, -1, fp, "save return address");
+      // 13: LD 7, -1(5) return back to the caller
+      emitRM("LD", pc, -1, fp, "return back to the caller");
+      int savedLoc = emitSkip(0); //14
+      emitBackup(skippedLoc);
+      // 11: LDA 7, 2(7) jump forward to finale
+      emitRM_Abs("LDA", pc, savedLoc, "jump forward to finale");
+     
+      emitRestore();
+    
+    // level++;
+
+    // if (dec.result != null) {
+    //   dec.result.accept(this, level, isAddr);
+    // }
+    // if (dec.params != null) {
+    //   dec.params.accept(this, level, isAddr);
+    // }
+    // if (dec.body != null) {
+    //   dec.body.accept(this, level, isAddr);
+    // }
+  }
+
+  public void visit(SimpleDec dec, int offset, boolean isAddr) {
+    // how do we set nestLevel? dec.offset would depend on that?
+    dec.offset = globalOffset;
+    dec.nestLevel = 0;
+    globalOffset--;
+    // indent(level);
+    // System.out.println("SimpleDec: " + dec.name);
+    // level++;
+    // if (dec.typ != null) {
+    //   dec.typ.accept(this, level, isAddr);
+    // }
+  }
+
+  public void visit(ArrayDec dec, int offset, boolean isAddr) {
+    // indent(level);
+    // System.out.println("ArrayDec: " + dec.name);
+    // level++;
+    // if (dec.typ != null) {
+    //   dec.typ.accept(this, level, isAddr);
+    // }
+    // if (dec.size != null) {
+    //   dec.size.accept(this, level, isAddr);
+    // }
+  }
+
+
+
   // public void visit( DecList decList, int level, boolean isAddr ){ BEFORE
-  // while( decList != null ) {
-  // if(decList.head != null){
-  // decList.head.accept( this, level, isAddr );
-  // }
-  // decList = decList.tail;
-  // }
   // }
 
 
@@ -194,22 +274,7 @@ public class CodeGenerator implements AbsynVisitor {
     }
   }
 
-  public void visit(FunctionDec dec, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("FunctionDec: " + dec.func);
-    level++;
-
-    if (dec.result != null) {
-      dec.result.accept(this, level, isAddr);
-    }
-    if (dec.params != null) {
-      dec.params.accept(this, level, isAddr);
-    }
-    if (dec.body != null) {
-      dec.body.accept(this, level, isAddr);
-    }
-  }
-
+ 
   public void visit(IfExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("IfExp:");
@@ -300,27 +365,6 @@ public class CodeGenerator implements AbsynVisitor {
     level++;
     if (exp.exp != null) {
       exp.exp.accept(this, level, isAddr);
-    }
-  }
-
-  public void visit(SimpleDec dec, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("SimpleDec: " + dec.name);
-    level++;
-    if (dec.typ != null) {
-      dec.typ.accept(this, level, isAddr);
-    }
-  }
-
-  public void visit(ArrayDec dec, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("ArrayDec: " + dec.name);
-    level++;
-    if (dec.typ != null) {
-      dec.typ.accept(this, level, isAddr);
-    }
-    if (dec.size != null) {
-      dec.size.accept(this, level, isAddr);
     }
   }
 
