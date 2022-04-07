@@ -1,0 +1,13 @@
+int x; 
+void main(void) {
+    x = 6;
+    if (x < 3) {
+        x = 2;
+    }
+    output(x); /* should be 6 */
+
+    if(x > 3) {
+        x = 2;
+    }
+    output(x); /* should be 2 */
+}

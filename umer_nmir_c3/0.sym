@@ -1,9 +1,0 @@
-The semantic analysis annotated tree:
-Entering the global scope: 
-    Entering the scope for function main
-    Leaving the scope for function main
-    x: int
-    y: int
-    main: (void) -> void
-Leaving the global scope
-

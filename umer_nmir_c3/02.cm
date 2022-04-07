@@ -1,0 +1,9 @@
+/*global and local variables with assignment simplevar and constants, and output are working*/
+int y;
+void main(void) {
+    int x;
+    x = 2;
+    y = x;
+    output(x);
+    output(y);
+}

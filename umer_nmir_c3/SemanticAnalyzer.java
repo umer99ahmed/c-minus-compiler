@@ -44,6 +44,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
         return;
       }
     }
+    // C3: adding nestLevel
+    if (node.def instanceof VarDec) {
+      if (node.level > 1) {
+          ((VarDec) node.def).nestLevel = 1;
+      } else {
+          ((VarDec) node.def).nestLevel = 0;
+      }
+    }
     vars.add(node);
   }
 
@@ -129,7 +137,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         "ERROR: Returned expression does not match function's return type at row ";
 
     while (body != null) {
-      if(body.head instanceof IfExp){
+      if (body.head instanceof IfExp) {
         hasIf = true;
       }
       if (body.head instanceof ReturnExp) {
@@ -145,7 +153,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
           if (aDec.typ.type != rType) {
             symbolErrors.add(returnExpError + (aDec.row + 1) + ", column " + (aDec.col + 1) + ".");
           }
-        } else if( rType != 1) {
+        } else if (rType != 1) {
           symbolErrors
               .add("ERROR: Invalid return type at row " + (((ReturnExp) body.head).exp.row + 1)
                   + ", column " + (((ReturnExp) body.head).exp.col + 1) + ".");
@@ -220,13 +228,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
   public void visit(DecList decList, int level, boolean isAddr) {
     indent(level);
     System.out.println("Entering the global scope: ");
-    //insert input
-    FunctionDec inputDec = new FunctionDec(0,0,new NameTy(0, 0, NameTy.INT), new String("input"), new VarDecList(null, null),new CompoundExp(0, 0, null, null));
+    // insert input
+    FunctionDec inputDec = new FunctionDec(0, 0, new NameTy(0, 0, NameTy.INT), new String("input"),
+        new VarDecList(null, null), new CompoundExp(0, 0, null, null));
     NodeType inputNode = new NodeType(inputDec.func, inputDec, level);
     symTableInsert(inputNode);
 
-    //insert output
-    FunctionDec outputDec = new FunctionDec(0,0, new NameTy(0, 0, NameTy.VOID), new String("output"), new VarDecList(new SimpleDec(0, 0, new NameTy(0, 0, NameTy.INT), new String("")), null),new CompoundExp(0, 0, null, null));
+    // insert output
+    FunctionDec outputDec =
+        new FunctionDec(0, 0, new NameTy(0, 0, NameTy.VOID), new String("output"),
+            new VarDecList(new SimpleDec(0, 0, new NameTy(0, 0, NameTy.INT), new String("")), null),
+            new CompoundExp(0, 0, null, null));
     NodeType outputNode = new NodeType(outputDec.func, outputDec, level);
     symTableInsert(outputNode);
 
@@ -359,13 +371,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
       exp.decs.accept(this, level, isAddr);
     }
 
-    if (exp.exps != null) { 
+    if (exp.exps != null) {
       exp.exps.accept(this, level, isAddr);
     }
 
   }
 
-  public void visit(AssignExp exp, int level, boolean isAddr) { 
+  public void visit(AssignExp exp, int level, boolean isAddr) {
 
     boolean isLeftArrayDec = false;
     boolean isRightArrayDec = false;
@@ -461,8 +473,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
   }
 
-  public void visit(NilExp exp, int level, boolean isAddr) {
-  }
+  public void visit(NilExp exp, int level, boolean isAddr) {}
 
   public void visit(OpExp exp, int level, boolean isAddr) {
 
@@ -553,7 +564,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     } else {
       ArrayList<NodeType> vars = table.get(exp.func);
       NodeType var = vars.get(vars.size() - 1);
-      exp.relatedDef = (FunctionDec)var.def;
+      exp.relatedDef = (FunctionDec) var.def;
       // get type of var in table and copy into VarExp.dtype
       if (var.def instanceof FunctionDec) {// SimpleDec
         exp.dtype = new SimpleDec(exp.row, exp.col, ((FunctionDec) var.def).result, "");
@@ -576,7 +587,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     } else {
       ArrayList<NodeType> vars = table.get(var.name);
       NodeType dec = vars.get(vars.size() - 1);
-      var.relatedDef = (SimpleDec)dec.def;
+      var.relatedDef = (SimpleDec) dec.def;
     }
   }
 
@@ -588,7 +599,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     } else {
       ArrayList<NodeType> vars = table.get(var.name);
       NodeType dec = vars.get(vars.size() - 1);
-      var.relatedDef = (ArrayDec)dec.def;
+      var.relatedDef = (ArrayDec) dec.def;
     }
 
 
@@ -600,10 +611,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
       } else if ((var.index.dtype instanceof SimpleDec
           && ((SimpleDec) var.index.dtype).typ.type != 0)
-          || (var.index.dtype instanceof ArrayDec)) { 
+          || (var.index.dtype instanceof ArrayDec)) {
         symbolErrors.add("ERROR: Invalid index type (expected 'int') for the array variable ("
             + var.name + ") at row " + (var.row + 1) + ", column " + (var.col + 1) + ".");
-      } 
+      }
     }
   }
 
