@@ -1,20 +1,38 @@
-fp->  ofp  0      dmen 10
-      ret -1            9
-      x                 8
-      1                 7
-      7                 6 (push addy of left onto stack)
-    
+initFO = -2
+ofpFO  = 0
+MAIN
+ ->         ofp XXXX  1000
+              ret XXXX
+fp->        1000      -2 FRAME OFFSET   998
+                        -3
+               2        -4
+        
 
-reg0 : 1
-reg1 : 7 (load addy of left into reg1)
-fp : 10
 
-* looking up id: fac | storing addy of fac into reg0
- 22:    LDA  0,-3(5) 	load id address
-* <- id | in the next spot of dMem, store addy of fac?
- 23:     ST  0,-4(5) 	op: push left
-* -> constant | store '1' into reg0
- 24:    LDC  0,1(0) 	load const
-* <- constant | load addy of fac into reg1, then store 1 into addy at reg1? which is fac
- 25:     LD  1,-4(5) 	op: load left
- 26:     ST  0,0(1) 	assign: store value
+
+      ST fp, frameOffset+ofpFO (fp) * store current fp
+      LDA fp, frameOffset (fp) * push new frame
+LDA ac, 1 (pc) * save return in ac
+LDA pc, … (pc) * relative jump to function entry
+LD fp, ofpFO (fp) * pop current frame
+
+MAIN 0.cm
+21: LD 0,-10(6)	load value of var into AC
+22: ST 0,-4(5)	Storing value of arg 1 into (-2)fp
+23: ST 5,-2(5)	* store current fp
+24: LDA 5,-2(5)	* push new frame
+25: LDA 0,1(7)	* save return in ac
+26: LDA 7,-20(7)	* relative jump to function entry
+27: LD 5,0(5)	 * pop current frame
+
+
+fac
+* looking up id: fac
+ 56:     LD  0,-3(5) 	load id value
+* <- id
+ 57:     ST  0,-6(5) 	store arg val
+ 58:     ST  5,-4(5) 	push ofp
+ 59:    LDA  5,-4(5) 	push frame
+ 60:    LDA  0,1(7) 	load ac with ret ptr
+ 61:    LDA  7,-55(7) 	jump to fun loc
+ 62:     LD  5,0(5) 	pop frame

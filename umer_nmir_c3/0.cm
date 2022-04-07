@@ -1,6 +1,8 @@
 /*int x; int y;*/
-int x;
-int arr[10];
+int x; int y;
 void main(void) {
-    x = 2;
+    x = 6;
+    y = 3;
+    output(x);
+    output(5);
 }

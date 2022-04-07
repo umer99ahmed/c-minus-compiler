@@ -16,6 +16,8 @@ public class CodeGenerator implements AbsynVisitor {
   final int fp = 5;
   final int gp = 6;
   final int pc = 7;
+  final int initFO = -2;
+  final int ofpFO  = 0;
 
   /*
    * Returns location of skipped instruction, skips instruction, and matches highEmitLoc (if
@@ -183,14 +185,14 @@ public class CodeGenerator implements AbsynVisitor {
     // dec.params.accept(this, level, isAddr);
     // }
     if (dec.body != null) {
-      dec.body.accept(this, offset - 2, isAddr);
+      dec.body.accept(this, offset -2, isAddr);
     }
 
     // 13: LD 7, -1(5) return back to the caller
     emitRM("LD", pc, -1, fp, "return back to the caller");
     int savedLoc = emitSkip(0); // 14
     emitBackup(skippedLoc);
-    // 11: LDA 7, 2(7) jump forward to finale
+    // 11: LDA 7, 2(7) jump forward to finale (might just be something for main)
     emitRM_Abs("LDA", pc, savedLoc, "jump forward to finale");
     emitRestore();
   }
@@ -217,7 +219,6 @@ public class CodeGenerator implements AbsynVisitor {
   public void visit(ArrayDec dec, int offset, boolean isAddr) {
     dec.nestLevel = NEST_LEVEL;
     if (dec.nestLevel == 0) {
-
       globalOffset -= dec.size.value;// -10
       dec.offset = globalOffset + 1;// -9
     }
@@ -242,6 +243,8 @@ public class CodeGenerator implements AbsynVisitor {
 
     if (exp.exps != null) {
       exp.exps.accept(this, offset, isAddr);
+      // 4: ST 0,-1(5) store return
+      // emitRM("ST", ac, -1, fp, "store return");
     }
 
   }
@@ -258,7 +261,7 @@ public class CodeGenerator implements AbsynVisitor {
     }
   }
 
-  public void visit(AssignExp exp, int offset, boolean isAddr) {
+  public void visit(AssignExp exp, int offset, boolean isAddr) {//-2
     /*
      * looking up id: fac | storing addy of LHS into reg0 
      22: LDA 0,-3(5) load id address <- id | in
@@ -269,19 +272,44 @@ public class CodeGenerator implements AbsynVisitor {
      * value
      */
     // indent(level);
+    
+    //  x=2  gp(&x)
+    //main opf 0
+    //     ret -1
+    //     2   -2
+    //     &x(0) -3
+    //     2     -4
     System.err.println("AssignExp:");
     // level++;
     if (exp.lhs != null) {
-      System.err.println("here:");
-
-      exp.lhs.accept(this, offset, true);
+      exp.lhs.accept(this, offset-1, true);
     }
-    // if (exp.rhs != null) {
-    // exp.rhs.accept(this, offset, isAddr);
-    // }
+    if (exp.rhs != null) {
+      exp.rhs.accept(this, offset-2, isAddr);
+    }
+    //whats going on?
+    // 23: LD 0, -4(5) 
+    emitRM("LD", ac, offset-1, fp, "load address of lhs into ac");
+    // 24: LD 1, -5(5) 
+    emitRM("LD", ac1, offset-2, fp, "load rhs constant into ac1");
+    // 25: ST 1, 0(0)
+    emitRM("ST", ac1, 0, ac, "storing rhs constant into address of lhs");
+    // 26: ST 1, -3(5)
+    int gpOffset =  ((SimpleVar)exp.lhs.variable).relatedDef.offset;
+    // emitRM("ST", ac1, offset, gp, "storing rhs constant into offet of assignExp"); //TODO: WONT ALWAYS BE GP HANDELE WHEN WE HAVE LOCAL DEC
+    emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp"); //TODO: WONT ALWAYS BE GP HANDELE WHEN WE HAVE LOCAL DEC
+
+
   }
-  // public void visit( DecList decList, int level, boolean isAddr ){ BEFORE
-  // }
+  
+  public void visit(IntExp exp, int offset, boolean isAddr) {
+    System.err.println("IntExp:(offset) " + exp.value+" "+ offset);
+    //24: LDC 0,2(0) load const <- constant
+    emitRM("LDC", ac, exp.value, 0, "load const("+ String.valueOf(exp.value) +") <- constant");
+    // 25: ST 0,-4(5) op: push left -> constant 
+    emitRM("ST", ac, offset, fp, "load const("+ String.valueOf(exp.value) +") <- constant");
+
+  }
 
   public void visit(VarExp exp, int offset, boolean isAddr) {
     System.err.println("VarExp: ");
@@ -291,32 +319,59 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(SimpleVar var, int offset, boolean isAddr) {
-    
-    if(var.relatedDef.nestLevel == 0 ){
+    System.err.println("SimpleVar:(offset) " + var.name + " "+ offset);
+    if(var.relatedDef.nestLevel == 0 && isAddr){
       emitComment("* looking up id: "+var.name, false);
+      //37:    LDA  0,-3(5) 	load id address
       emitRM("LDA", ac, var.relatedDef.offset, gp, "load id address");
+      //* <- id
+      emitComment("* <- id", false);
+      //38:     ST  0,-3(5) 	op: push left
+      emitRM("ST", ac, offset, fp, "op: push left");
+    } else if (var.relatedDef.nestLevel == 0 && !isAddr){
+      //LD  0,-3(5) 	load id value
+      emitRM("LD", ac, var.relatedDef.offset, gp, "load value of var into AC");
     }
 
-    System.err.println("SimpleVar: " + var.name);
 
   }
+
+  public void visit(CallExp exp, int offset, boolean isAddr) {
+    System.err.println("CallExp(offset): " + exp.func+" "+ offset);
+    if (exp.args != null) {
+      // exp.args.accept(this, offset, isAddr);
+      //for (int i=0; i < exp.args)
+      
+      int i = 0;
+      while (exp.args != null) {
+        
+        if (exp.args.head != null) {
+          exp.args.head.accept(this, offset, false);
+          emitRM("ST", ac, offset+ initFO + i, fp, "Storing value of arg " + (i + 1) + " into "+"("+(offset+i)+")fp");
+          i--;
+        }
+        exp.args = exp.args.tail;
+      }
+      // ST fp, frameOffset+ofpFO (fp) * store current fp
+      emitRM("ST", fp, offset + ofpFO, fp, "* store current fp");
+      // LDA fp, frameOffset (fp) * push new frame
+      emitRM("LDA", fp, offset, fp, "* push new frame");
+      // LDA ac, 1 (pc) * save return in ac
+      emitRM("LDA", ac, 1, pc, "* save return in ac");
+      // LDA pc, ... (pc) * relative jump to function entry 
+      //if output hardcode else if input hardcode, else get funaddr and calculate offset
+      emitRM_Abs("LDA", pc, 7, "* relative jump to function entry");
+      // LD fp, ofpFO (fp) * pop current frame
+      emitRM("LD", fp, ofpFO, fp, " * pop current frame");
+    }
+  }
+
 
   final static int SPACES = 4;
 
   private void indent(int level) {
     for (int i = 0; i < level * SPACES; i++)
       System.out.print(" ");
-  }
-
-
-  public void visit(CallExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("CallExp: " + exp.func);
-    level++;
-    if (exp.args != null) {
-      exp.args.accept(this, level, isAddr);
-    }
-
   }
 
 
@@ -337,11 +392,6 @@ public class CodeGenerator implements AbsynVisitor {
     if (exp.elsepart != null) {
       exp.elsepart.accept(this, level, isAddr);
     }
-  }
-
-  public void visit(IntExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("IntExp: " + exp.value);
   }
 
   public void visit(NameTy typ, int level, boolean isAddr) {
