@@ -1,3 +1,7 @@
+void func(int g){
+  output(g);
+}
+
 void main(void) {
   int x; int fac;
 
@@ -8,6 +12,6 @@ void main(void) {
     fac = fac * x;
     x = x - 1;
   } 
-
-  output(fac);
+  output(fac*fac);
+  func(fac);
 }

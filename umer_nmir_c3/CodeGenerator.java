@@ -430,7 +430,6 @@ public class CodeGenerator implements AbsynVisitor {
         emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
         break;
       case OpExp.GT:
-        System.err.println("YOOYOYOUOYOYOYO > OYOYOYOOY ");
         emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
         emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
         emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
@@ -443,7 +442,6 @@ public class CodeGenerator implements AbsynVisitor {
         emitRM("LDA", pc, 1, pc, "unconditional jmp");
         // 35: LDC 0,1(0) true case
         emitRM("LDC", 0, 1, 0, "true case");
-
         break;
       default:
         System.err.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
@@ -469,6 +467,8 @@ public class CodeGenerator implements AbsynVisitor {
 
   public void visit(SimpleVar var, int offset, boolean isAddr) {
     System.err.println("SimpleVar:(offset) " + var.name + " " + offset);
+    emitComment("* -> SimpleVar", false);
+
     int reg = 0;
     reg = var.relatedDef.nestLevel == 0 ? gp : fp;
 
@@ -486,6 +486,8 @@ public class CodeGenerator implements AbsynVisitor {
       // yest
       emitRM("ST", ac, offset, fp, " <- constant");
     }
+    emitComment("* <- SimpleVar", false);
+
   }
 
   public void visit(CallExp exp, int offset, boolean isAddr) {
@@ -513,7 +515,6 @@ public class CodeGenerator implements AbsynVisitor {
     // LDA ac, 1 (pc) * save return in ac
     emitRM("LDA", ac, 1, pc, "* save return in ac");
     // LDA pc, ... (pc) * relative jump to function entry
-    // if output hardcode else if input hardcode, else get funaddr and calculate offset
     if (exp.func.equals("output")) {
       emitRM_Abs("LDA", pc, 7, "* relative jump to output function entry");
     } else if (exp.func.equals("input")) {
