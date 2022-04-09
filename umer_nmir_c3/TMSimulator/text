@@ -35,3 +35,109 @@ public void visit(WhileExp exp, int offset, boolean isAddr) {
       exp.body.accept(this, offset, isAddr);
     }
   }
+
+
+
+IFF
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("JGT", ac, 2, pc, "br if true");
+        emitRM("LDC", ac, 0, 0, "false case");
+        emitRM("LDA", pc, 1, pc, "unconditional jmp");
+        emitRM("LDC", 0, 1, 0, "true case");
+* -> if
+* -> op
+* -> id
+* looking up id: v
+ 13:     LD  0,-3(5) 	load id value
+* <- id
+ 14:     ST  0,-4(5) 	op: push left
+* -> constant
+ 15:    LDC  0,0(0) 	load const
+* <- constant
+ 16:     LD  1,-4(5) 	op: load left
+ 17:    SUB  0,1,0 	op ==
+ 18:    JEQ  0,2(7) 	br if true
+ 19:    LDC  0,0(0) 	false case
+ 20:    LDA  7,1(7) 	unconditional jmp
+ 21:    LDC  0,1(0) 	true case
+* <- op
+* if: jump to else belongs here
+* -> return
+* -> id
+* looking up id: u
+ 23:     LD  0,-2(5) 	load id value
+* <- id
+ 24:     LD  7,-1(5) 	return to caller
+* <- return
+* if: jump to end belongs here
+ 22:    JEQ  0,3(7) 	if: jmp to else
+* -> return
+* -> call of function: gcd
+* -> id
+* looking up id: v
+ 26:     LD  0,-3(5) 	load id value
+* <- id
+ 27:     ST  0,-6(5) 	store arg val
+* -> op
+* -> id
+* looking up id: u
+ 28:     LD  0,-2(5) 	load id value
+* <- id
+ 29:     ST  0,-7(5) 	op: push left
+* -> op
+* -> op
+* -> id
+* looking up id: u
+ 30:     LD  0,-2(5) 	load id value
+* <- id
+ 31:     ST  0,-8(5) 	op: push left
+* -> id
+* looking up id: v
+ 32:     LD  0,-3(5) 	load id value
+* <- id
+ 33:     LD  1,-8(5) 	op: load left
+ 34:    DIV  0,1,0 	op /
+* <- op
+ 35:     ST  0,-8(5) 	op: push left
+* -> id
+* looking up id: v
+ 36:     LD  0,-3(5) 	load id value
+* <- id
+ 37:     LD  1,-8(5) 	op: load left
+ 38:    MUL  0,1,0 	op *
+* <- op
+ 39:     LD  1,-7(5) 	op: load left
+ 40:    SUB  0,1,0 	op -
+* <- op
+ 41:     ST  0,-7(5) 	store arg val
+ 42:     ST  5,-4(5) 	push ofp
+ 43:    LDA  5,-4(5) 	push frame
+ 44:    LDA  0,1(7) 	load ac with ret ptr
+ 45:    LDA  7,-34(7) 	jump to fun loc
+ 46:     LD  5,0(5) 	pop frame
+* <- call
+ 47:     LD  7,-1(5) 	return to caller
+* <- return
+ 25:    LDA  7,22(7) 	jmp to end
+* <- if
+
+if (v == 0) return u;
+else return gcd(v, u - u/v*v);
+
+
+
+
+
+public void visit(WhileExp exp, int offset, boolean isAddr) {
+
+    System.out.println("WhileExp:");
+
+    if (exp.test != null) {
+      exp.test.accept(this, offset, isAddr);
+    }
+    if (exp.body != null) {
+      exp.body.accept(this, offset, isAddr);
+    }
+  }

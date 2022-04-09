@@ -1,5 +1,9 @@
-void func(int g){
+void func(int g, int x, int a){
   output(g);
+  output(1000);
+  output(1001);
+  output(g + x * a);
+  return; 
 }
 
 void main(void) {
@@ -12,6 +16,11 @@ void main(void) {
     fac = fac * x;
     x = x - 1;
   } 
-  output(fac*fac);
-  func(fac);
+  /*output(fac);*/
+  func(fac, 1, 2);
+  output(x);
+  return;
+  x = 0;
+  output(x);
+  
 }
