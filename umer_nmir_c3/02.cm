@@ -6,4 +6,6 @@ void main(void) {
     y = x;
     output(x);
     output(y);
+    x = x + 3;
+    output(x);
 }

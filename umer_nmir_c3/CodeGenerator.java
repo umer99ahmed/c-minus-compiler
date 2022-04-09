@@ -257,7 +257,7 @@ public class CodeGenerator implements AbsynVisitor {
       }
     }
     if (lastDec != null) {
-      offset = lastDec.offset-1;
+      offset = lastDec.offset - 1;
     }
     System.err.println("OFFSET BEFORE EXPS IN COMPOUNDEXP: " + offset);
 
@@ -298,30 +298,14 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(AssignExp exp, int offset, boolean isAddr) {// -2
-    /*
-     * looking up id: fac | storing addy of LHS into reg0 22: LDA 0,-3(5) load id address <- id | in
-     * the next spot of dMem, store addy of fac? 23: ST 0,-4(5) op: push left -> constant | store
-     * '1' into reg0 24: LDC 0,1(0) load const <- constant | load addy of fac into reg1, then store
-     * 1 into addy at reg1? which is fac 25: LD 1,-4(5) op: load left 26: ST 0,0(1) assign: store
-     * value
-     */
-    // indent(level);
 
-    // x=2 gp(&x)
-    // main opf 0
-    // ret -1
-    // 2 -2
-    // &x(0) -3
-    // 2 -4
     System.err.println("AssignExp:");
-    // level++;
     if (exp.lhs != null) {
       exp.lhs.accept(this, offset - 1, true);
     }
     if (exp.rhs != null) {
       exp.rhs.accept(this, offset - 2, isAddr);
     }
-    // whats going on?
     // 23: LD 0, -4(5)
     emitRM("LD", ac, offset - 1, fp, "load address of lhs into ac");
     // 24: LD 1, -5(5)
@@ -329,14 +313,141 @@ public class CodeGenerator implements AbsynVisitor {
     // 25: ST 1, 0(0)
     emitRM("ST", ac1, 0, ac, "storing rhs constant into address of lhs");
     // 26: ST 1, -3(5)
-    if(((SimpleVar) exp.lhs.variable).relatedDef.nestLevel == 0 ){
+    if (((SimpleVar) exp.lhs.variable).relatedDef.nestLevel == 0) {
       int gpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
-      emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp"); 
-    }else{
+      emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp");
+    } else {
       int fpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
-      emitRM("ST", ac1, fpOffset, fp, "storing rhs constant into offet of assignExp"); 
+      emitRM("ST", ac1, fpOffset, fp, "storing rhs constant into offet of assignExp");
+    }
+    // TODO: indexvar handling
+  }
+
+  public void visit(WhileExp exp, int offset, boolean isAddr) {
+
+    // System.out.println("WhileExp:");
+    emitComment("* -> while", false);
+
+    int top = emitSkip(0);
+    if (exp.test != null) {
+      exp.test.accept(this, offset, isAddr);
+    }
+    int skippedLoc = emitSkip(1); // instruction after true/false cases
+
+    if (exp.body != null) {
+      exp.body.accept(this, offset, isAddr);
+    }
+    // LDA 7,-29(7) while: absolute jmp to test
+    emitRM_Abs("LDA", pc, top, "while: absolute jmp to test");
+
+    int savedLoc = emitSkip(0);
+    emitBackup(skippedLoc);
+    emitRM_Abs("JEQ", ac, savedLoc, "while: jmp to end");
+    emitRestore();
+    emitComment("* <- while", false);
+
+
+  }
+
+  public void visit(OpExp exp, int offset, boolean isAddr) {
+    System.err.println("OpExp(offset): " + offset);
+
+    if (exp.left != null) {
+      exp.left.accept(this, offset - 1, false);
     }
 
+    if (exp.right != null) {
+      exp.right.accept(this, offset - 2, false);
+    }
+
+
+
+    switch (exp.op) {
+      case OpExp.PLUS:
+        // System.out.println(" + ");
+        // 19: LD 0, -6(5) and 20: LD 1, -7(5)
+        // 21: ADD 0, 0, 1 and 22: ST 0, -5(5)
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("ADD", ac, ac, ac1, "add values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.MINUS:
+        // System.out.println(" - ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, "sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.TIMES:
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("MUL", ac, ac, ac1, "mul values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        // System.out.println(" * ");
+        break;
+      case OpExp.OVER:
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("DIV", ac, ac, ac1, "div values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        // System.out.println(" / ");
+        break;
+      case OpExp.LTEQ:
+        // System.out.println(" <= ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+
+        break;
+      case OpExp.GTEQ:
+        // System.out.println(" >= ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.EQ:
+        // System.out.println(" == ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.NOTEQ:
+        // System.out.println(" != ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.LT:
+        // System.out.println(" < ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        break;
+      case OpExp.GT:
+        System.err.println("YOOYOYOUOYOYOYO > OYOYOYOOY ");
+        emitRM("LD", ac, offset - 1, fp, "load lhs value into ac");
+        emitRM("LD", ac1, offset - 2, fp, "load rhs value into ac1");
+        emitRO("SUB", ac, ac, ac1, " sub values of ac and ac1 into ac");
+        // emitRM("ST", ac, offset, fp, "storing rhs constant into address of lhs");
+        // 32: JGT 0,2(7) br if true
+        emitRM("JGT", ac, 2, pc, "br if true");
+        // 33: LDC 0,0(0) false case
+        emitRM("LDC", ac, 0, 0, "false case");
+        // 34: LDA 7,1(7) unconditional jmp
+        emitRM("LDA", pc, 1, pc, "unconditional jmp");
+        // 35: LDC 0,1(0) true case
+        emitRM("LDC", 0, 1, 0, "true case");
+
+        break;
+      default:
+        System.err.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
+    }
 
   }
 
@@ -372,39 +483,50 @@ public class CodeGenerator implements AbsynVisitor {
     } else {
       // LD 0,-3(5) load id value
       emitRM("LD", ac, var.relatedDef.offset, reg, "load value of var into AC");
-      //yest
+      // yest
       emitRM("ST", ac, offset, fp, " <- constant");
-    } 
+    }
   }
 
   public void visit(CallExp exp, int offset, boolean isAddr) {
     System.err.println("CallExp(offset): " + exp.func + " " + offset);
-    if (exp.args != null) {
-      // exp.args.accept(this, offset, isAddr);
-      // for (int i=0; i < exp.args)
+    emitComment("* -> CallExp", false);
+    // if (exp.args != null) {
+    // exp.args.accept(this, offset, isAddr);
+    // for (int i=0; i < exp.args)
 
-      int i = 0;
-      while (exp.args != null) {
+    int i = 0;
+    while (exp.args != null) {
 
-        if (exp.args.head != null) {
-          exp.args.head.accept(this, offset, false);
-          emitRM("ST", ac, offset + initFO + i, fp,
-              "Storing value of arg " + (i + 1) + " into " + "(" + (offset + i) + ")fp");
-          i--;
-        }
-        exp.args = exp.args.tail;
+      if (exp.args.head != null) {
+        exp.args.head.accept(this, offset, false);
+        emitRM("ST", ac, offset + initFO + i, fp,
+            "Storing value of arg " + (i + 1) + " into " + "(" + (offset + i) + ")fp");
+        i--;
       }
-      // ST fp, frameOffset+ofpFO (fp) * store current fp
-      emitRM("ST", fp, offset + ofpFO, fp, "* store current fp");
-      // LDA fp, frameOffset (fp) * push new frame
-      emitRM("LDA", fp, offset, fp, "* push new frame");
-      // LDA ac, 1 (pc) * save return in ac
-      emitRM("LDA", ac, 1, pc, "* save return in ac");
-      // LDA pc, ... (pc) * relative jump to function entry
-      // if output hardcode else if input hardcode, else get funaddr and calculate offset
-      emitRM_Abs("LDA", pc, 7, "* relative jump to function entry");
-      // LD fp, ofpFO (fp) * pop current frame
-      emitRM("LD", fp, ofpFO, fp, " * pop current frame");
+      exp.args = exp.args.tail;
+    }
+    // ST fp, frameOffset+ofpFO (fp) * store current fp
+    emitRM("ST", fp, offset + ofpFO, fp, "* store current fp");
+    // LDA fp, frameOffset (fp) * push new frame
+    emitRM("LDA", fp, offset, fp, "* push new frame");
+    // LDA ac, 1 (pc) * save return in ac
+    emitRM("LDA", ac, 1, pc, "* save return in ac");
+    // LDA pc, ... (pc) * relative jump to function entry
+    // if output hardcode else if input hardcode, else get funaddr and calculate offset
+    if (exp.func.equals("output")) {
+      emitRM_Abs("LDA", pc, 7, "* relative jump to output function entry");
+    } else if (exp.func.equals("input")) {
+      emitRM_Abs("LDA", pc, 4, "* relative jump to input function entry");
+    } else {
+      // get funaddr and calculate offset etc
+      emitRM_Abs("LDA", pc, exp.relatedDef.funaddr, "* relative jump to function entry");
+    }
+    // LD fp, ofpFO (fp) * pop current frame
+    emitRM("LD", fp, ofpFO, fp, " * pop current frame");
+    emitComment("* <- CallExp", false);
+    if (exp.func.equals("input")) {
+      emitRM("ST", ac, offset, fp, "load user input");
     }
   }
 
@@ -451,52 +573,6 @@ public class CodeGenerator implements AbsynVisitor {
     System.out.println("NilExp: ");
   }
 
-  public void visit(OpExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.print("OpExp:");
-    switch (exp.op) {
-      case OpExp.PLUS:
-        System.out.println(" + ");
-        break;
-      case OpExp.MINUS:
-        System.out.println(" - ");
-        break;
-      case OpExp.TIMES:
-        System.out.println(" * ");
-        break;
-      case OpExp.OVER:
-        System.out.println(" / ");
-        break;
-      case OpExp.LTEQ:
-        System.out.println(" <= ");
-        break;
-      case OpExp.GTEQ:
-        System.out.println(" >= ");
-        break;
-      case OpExp.EQ:
-        System.out.println(" == ");
-        break;
-      case OpExp.NOTEQ:
-        System.out.println(" != ");
-        break;
-      case OpExp.LT:
-        System.out.println(" < ");
-        break;
-      case OpExp.GT:
-        System.out.println(" > ");
-        break;
-      default:
-        System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
-    }
-    level++;
-    if (exp.left != null) {
-      exp.left.accept(this, level, isAddr);
-    }
-    if (exp.right != null) {
-      exp.right.accept(this, level, isAddr);
-    }
-  }
-
   public void visit(ReturnExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("ReturnExp: ");
@@ -508,26 +584,13 @@ public class CodeGenerator implements AbsynVisitor {
 
 
 
-  public void visit(IndexVar var, int level, boolean isAddr) {
-    indent(level);
+  public void visit(IndexVar var, int offset, boolean isAddr) {
     System.out.println("IndexVar: " + var.name);
-    level++;
     if (var.index != null) {
-      var.index.accept(this, level, isAddr);
+      var.index.accept(this, offset, isAddr);
     }
   }
 
-  public void visit(WhileExp exp, int level, boolean isAddr) {
-    indent(level);
-    System.out.println("WhileExp:");
-    level++;
-    if (exp.test != null) {
-      exp.test.accept(this, level, isAddr);
-    }
-    if (exp.body != null) {
-      exp.body.accept(this, level, isAddr);
-    }
-  }
 
 
 }

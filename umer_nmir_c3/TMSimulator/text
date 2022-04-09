@@ -1,38 +1,37 @@
-initFO = -2
-ofpFO  = 0
-MAIN
- ->         ofp XXXX  1000
-              ret XXXX
-fp->        1000      -2 FRAME OFFSET   998
-                        -3
-               2        -4
-        
-
-
-
-      ST fp, frameOffset+ofpFO (fp) * store current fp
-      LDA fp, frameOffset (fp) * push new frame
-LDA ac, 1 (pc) * save return in ac
-LDA pc, … (pc) * relative jump to function entry
-LD fp, ofpFO (fp) * pop current frame
-
-MAIN 0.cm
-21: LD 0,-10(6)	load value of var into AC
-22: ST 0,-4(5)	Storing value of arg 1 into (-2)fp
-23: ST 5,-2(5)	* store current fp
-24: LDA 5,-2(5)	* push new frame
-25: LDA 0,1(7)	* save return in ac
-26: LDA 7,-20(7)	* relative jump to function entry
-27: LD 5,0(5)	 * pop current frame
-
-
-fac
-* looking up id: fac
- 56:     LD  0,-3(5) 	load id value
+ -> while
+* while: jump after body comes back here
+* -> op
+* -> id
+* looking up id: x
+ 27:     LD  0,-2(5) 	load id value
 * <- id
- 57:     ST  0,-6(5) 	store arg val
- 58:     ST  5,-4(5) 	push ofp
- 59:    LDA  5,-4(5) 	push frame
- 60:    LDA  0,1(7) 	load ac with ret ptr
- 61:    LDA  7,-55(7) 	jump to fun loc
- 62:     LD  5,0(5) 	pop frame
+ 28:     ST  0,-4(5) 	op: push left
+* -> constant
+ 29:    LDC  0,1(0) 	load const
+* <- constant
+ 30:     LD  1,-4(5) 	op: load left
+ 31:    SUB  0,1,0 	op >
+ 32:    JGT  0,2(7) 	br if true
+ 33:    LDC  0,0(0) 	false case
+ 34:    LDA  7,1(7) 	unconditional jmp
+ 35:    LDC  0,1(0) 	true case
+* <- op
+* while: jump to end belongs here
+* -> compound statement
+37-54
+* <- compound statement
+ 55:    LDA  7,-29(7) 	while: absolute jmp to test
+ 36:    JEQ  0,19(7) 	while: jmp to end
+* <- while
+
+public void visit(WhileExp exp, int offset, boolean isAddr) {
+
+    System.out.println("WhileExp:");
+
+    if (exp.test != null) {
+      exp.test.accept(this, offset, isAddr);
+    }
+    if (exp.body != null) {
+      exp.body.accept(this, offset, isAddr);
+    }
+  }
