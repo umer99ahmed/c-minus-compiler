@@ -1,13 +1,13 @@
 int y;
 
-int gcd(int v, int u) {
+int gcd(int u, int v) {
   if (v == 0) return u;
-  else return gcd(u - u/v*v, u);
+  else return gcd(v, u - u/v*v);
 }
 
 void main(void) {
   int x;
   x = input();
   y = 10;
-  output(gcd(y, x));
+  output(gcd(x, y));
 }

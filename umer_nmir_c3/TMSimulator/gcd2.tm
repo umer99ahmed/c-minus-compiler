@@ -18,7 +18,7 @@
 12: ST 0,-1(5)	save return address
 * -> if
 * -> SimpleVar
-13: LD 0,-2(5)	load value of var into AC
+13: LD 0,-3(5)	load value of var into AC
 14: ST 0,-5(5)	 <- constant
 * <- SimpleVar
 15: LDC 0,0(0)	load const(0) <- constant
@@ -31,7 +31,7 @@
 22: LDA 7,1(7)	unconditional jmp
 23: LDC 0,1(0)	true case
 * -> SimpleVar
-25: LD 0,-3(5)	load value of var into AC
+25: LD 0,-2(5)	load value of var into AC
 26: ST 0,-4(5)	 <- constant
 * <- SimpleVar
 27: LD 0,-4(5)	load return value into ac
@@ -40,37 +40,37 @@
 * -> CallExp
 * -> SimpleVar
 30: LD 0,-3(5)	load value of var into AC
-31: ST 0,-5(5)	 <- constant
+31: ST 0,-4(5)	 <- constant
+* <- SimpleVar
+32: ST 0,-6(5)	Storing value of arg 1 into (-4)fp
+* -> SimpleVar
+33: LD 0,-2(5)	load value of var into AC
+34: ST 0,-6(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-32: LD 0,-3(5)	load value of var into AC
-33: ST 0,-8(5)	 <- constant
+35: LD 0,-2(5)	load value of var into AC
+36: ST 0,-9(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-34: LD 0,-2(5)	load value of var into AC
-35: ST 0,-9(5)	 <- constant
+37: LD 0,-3(5)	load value of var into AC
+38: ST 0,-10(5)	 <- constant
 * <- SimpleVar
-36: LD 0,-8(5)	load lhs value into ac
-37: LD 1,-9(5)	load rhs value into ac1
-38: DIV 0,0,1	div values of ac and ac1 into ac
-39: ST 0,-7(5)	storing rhs constant into address of lhs
+39: LD 0,-9(5)	load lhs value into ac
+40: LD 1,-10(5)	load rhs value into ac1
+41: DIV 0,0,1	div values of ac and ac1 into ac
+42: ST 0,-8(5)	storing rhs constant into address of lhs
 * -> SimpleVar
-40: LD 0,-2(5)	load value of var into AC
-41: ST 0,-8(5)	 <- constant
+43: LD 0,-3(5)	load value of var into AC
+44: ST 0,-9(5)	 <- constant
 * <- SimpleVar
-42: LD 0,-7(5)	load lhs value into ac
-43: LD 1,-8(5)	load rhs value into ac1
-44: MUL 0,0,1	mul values of ac and ac1 into ac
-45: ST 0,-6(5)	storing rhs constant into address of lhs
-46: LD 0,-5(5)	load lhs value into ac
-47: LD 1,-6(5)	load rhs value into ac1
-48: SUB 0,0,1	sub values of ac and ac1 into ac
-49: ST 0,-4(5)	storing rhs constant into address of lhs
-50: ST 0,-6(5)	Storing value of arg 1 into (-4)fp
-* -> SimpleVar
-51: LD 0,-3(5)	load value of var into AC
-52: ST 0,-4(5)	 <- constant
-* <- SimpleVar
+45: LD 0,-8(5)	load lhs value into ac
+46: LD 1,-9(5)	load rhs value into ac1
+47: MUL 0,0,1	mul values of ac and ac1 into ac
+48: ST 0,-7(5)	storing rhs constant into address of lhs
+49: LD 0,-6(5)	load lhs value into ac
+50: LD 1,-7(5)	load rhs value into ac1
+51: SUB 0,0,1	sub values of ac and ac1 into ac
+52: ST 0,-5(5)	storing rhs constant into address of lhs
 53: ST 0,-7(5)	Storing value of arg 0 into (-5)fp
 54: ST 5,-4(5)	* store current fp
 55: LDA 5,-4(5)	* push new frame
@@ -120,13 +120,13 @@
 * -> CallExp
 * -> CallExp
 * -> SimpleVar
-85: LD 0,0(6)	load value of var into AC
+85: LD 0,-2(5)	load value of var into AC
 86: ST 0,-3(5)	 <- constant
 * <- SimpleVar
 87: ST 0,-5(5)	Storing value of arg 1 into (-3)fp
 * -> SimpleVar
-88: LD 0,-2(5)	load value of var into AC
-89: ST 0,-3(5)	 <- constant
+88: LD 0,0(6)	load value of var into AC
+89: ST 0,-4(5)	 <- constant
 * <- SimpleVar
 90: ST 0,-6(5)	Storing value of arg 0 into (-4)fp
 91: ST 5,-3(5)	* store current fp

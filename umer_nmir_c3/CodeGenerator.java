@@ -366,16 +366,16 @@ public class CodeGenerator implements AbsynVisitor {
       exp.test.accept(this, offset, isAddr);
     }
 
-    int skippedLoc = emitSkip(1); //saving loc of JEQ to else
+    int skippedLoc = emitSkip(1); // saving loc of JEQ to else
     if (exp.thenpart != null) {
       exp.thenpart.accept(this, offset, isAddr);
     }
-    int skippedLoc2 = emitSkip(1); //saving loc of unconditional jump to end of else
+    int skippedLoc2 = emitSkip(1); // saving loc of unconditional jump to end of else
     int savedLoc = emitSkip(0);
     emitBackup(skippedLoc);
     emitRM_Abs("JEQ", ac, savedLoc, "jump to else");
     emitRestore();
-    
+
     if (exp.elsepart != null) {
       exp.elsepart.accept(this, offset, isAddr);
     }
@@ -544,7 +544,7 @@ public class CodeGenerator implements AbsynVisitor {
     while (exp.args != null) {
 
       if (exp.args.head != null) {
-        exp.args.head.accept(this, offset, false);
+        exp.args.head.accept(this, offset + i, false);
         emitRM("ST", ac, offset + initFO + i, fp,
             "Storing value of arg " + (i + 1) + " into " + "(" + (offset + i) + ")fp");
         i--;
