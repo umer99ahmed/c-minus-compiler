@@ -1,0 +1,57 @@
+/*
+    Sorts a list of 10 user input numbers in a list
+    Features:
+        - Arrays
+        - Arithmetic & assignment
+        - Control Stuctures: if-then-else/while-loops
+        - Functions
+        - Global and local int vars
+        - input()/output()
+*/
+
+int x[10];
+
+int minloc(int low, int high) {
+  int i; int a; int k;
+  k = low;
+  a = x[low];
+  i = low + 1;
+  while (i < high) {
+    if (x[i] < a) {
+       a = x[i];
+       k = i; 
+    }
+    i = i + 1;
+  } 
+  return k;
+}
+
+void sort( int low, int high) {
+  int i; int k;
+  i = low;
+  while (i < high - 1) {
+    int t;
+    k = minloc(i, high);
+    t = x[k];
+    x[k] = x[i];
+    x[i] = t;
+    i = i + 1;
+  }
+}
+
+void main(void) {
+  int i;
+  i = 0;
+  while (i < 10) {
+    x[i] = input();
+    i = i + 1;
+  }
+
+  sort(0, 10);
+
+  i = 0;
+  while (i < 10) {
+    output(x[i]);
+    i = i + 1;
+  }
+}

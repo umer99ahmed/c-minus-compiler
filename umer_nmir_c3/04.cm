@@ -14,9 +14,8 @@ int gcd(int u, int v) {
     output(u);
     output(v);
     output( u - u/v*v);
-    temp = gcd(v, u - u/v*v);
-    output(temp);
     output(999);
+    temp = gcd(v, u - u/v*v);
     return temp;
   } 
 }
@@ -27,15 +26,21 @@ void main(void) {
   y = 10;
   output(gcd(x, y));
 }
-
+/*
 gcd(u:5 v:10):
   gcd(u:10(0), v:5):
-
-
-
-
     gcd( u:5, v:0):
       ->5
     ->5
   ->5
 ->5
+
+
+gcd(u:20 v:10):
+  gcd(u:10(0), v:5):
+    gcd( u:5, v:0):
+      ->5
+    ->5
+  ->5
+->5
+*/

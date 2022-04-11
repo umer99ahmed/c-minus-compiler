@@ -82,14 +82,14 @@
 59: ST 0,-6(5)	Storing value of arg 1 into (-4)fp
 * -> SimpleVar
 60: LD 0,-2(5)	load value of var into AC
-61: ST 0,-5(5)	 <- constant
+61: ST 0,-6(5)	 <- constant
 * <- SimpleVar
 62: LDC 0,1(0)	load const(1) <- constant
-63: ST 0,-6(5)	load const(1) <- constant
-64: LD 0,-5(5)	load lhs value into ac
-65: LD 1,-6(5)	load rhs value into ac1
+63: ST 0,-7(5)	load const(1) <- constant
+64: LD 0,-6(5)	load lhs value into ac
+65: LD 1,-7(5)	load rhs value into ac1
 66: SUB 0,0,1	sub values of ac and ac1 into ac
-67: ST 0,-4(5)	storing rhs constant into address of lhs
+67: ST 0,-5(5)	storing rhs constant into address of lhs
 68: ST 0,-7(5)	Storing value of arg 0 into (-5)fp
 69: ST 5,-4(5)	* store current fp
 70: LDA 5,-4(5)	* push new frame
@@ -145,7 +145,7 @@
 102: ST 0,-5(5)	Storing value of arg 1 into (-3)fp
 * -> SimpleVar
 103: LD 0,0(6)	load value of var into AC
-104: ST 0,-3(5)	 <- constant
+104: ST 0,-4(5)	 <- constant
 * <- SimpleVar
 105: ST 0,-6(5)	Storing value of arg 0 into (-4)fp
 106: ST 5,-3(5)	* store current fp

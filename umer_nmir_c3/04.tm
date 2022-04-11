@@ -32,126 +32,128 @@
 23: LDC 0,1(0)	true case
 * -> CallExp
 25: LDC 0,111(0)	load const(111) <- constant
-26: ST 0,-5(5)	load const(111) <- constant
-27: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-28: ST 5,-5(5)	* store current fp
-29: LDA 5,-5(5)	* push new frame
-30: LDA 0,1(7)	* save return in ac
-31: LDA 7,-25(7)	* relative jump to output function entry
-32: LD 5,0(5)	 * pop current frame
+26: ST 0,-7(5)	load const(111) <- constant
+27: ST 5,-5(5)	* store current fp
+28: LDA 5,-5(5)	* push new frame
+29: LDA 0,1(7)	* save return in ac
+30: LDA 7,-24(7)	* relative jump to output function entry
+31: LD 5,0(5)	 * pop current frame
 * <- CallExp
-33: ST 0,-5(5)	load user input
+32: ST 0,-5(5)	load user input
 * -> CallExp
 * -> SimpleVar
-34: LD 0,-2(5)	load value of var into AC
-35: ST 0,-5(5)	 <- constant
+33: LD 0,-2(5)	load value of var into AC
+34: ST 0,-7(5)	 <- constant
 * <- SimpleVar
-36: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-37: ST 5,-5(5)	* store current fp
-38: LDA 5,-5(5)	* push new frame
-39: LDA 0,1(7)	* save return in ac
-40: LDA 7,-34(7)	* relative jump to output function entry
-41: LD 5,0(5)	 * pop current frame
+35: ST 5,-5(5)	* store current fp
+36: LDA 5,-5(5)	* push new frame
+37: LDA 0,1(7)	* save return in ac
+38: LDA 7,-32(7)	* relative jump to output function entry
+39: LD 5,0(5)	 * pop current frame
 * <- CallExp
-42: ST 0,-5(5)	load user input
+40: ST 0,-5(5)	load user input
 * -> CallExp
 * -> SimpleVar
-43: LD 0,-3(5)	load value of var into AC
-44: ST 0,-5(5)	 <- constant
+41: LD 0,-3(5)	load value of var into AC
+42: ST 0,-7(5)	 <- constant
 * <- SimpleVar
-45: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-46: ST 5,-5(5)	* store current fp
-47: LDA 5,-5(5)	* push new frame
-48: LDA 0,1(7)	* save return in ac
-49: LDA 7,-43(7)	* relative jump to output function entry
-50: LD 5,0(5)	 * pop current frame
+43: ST 5,-5(5)	* store current fp
+44: LDA 5,-5(5)	* push new frame
+45: LDA 0,1(7)	* save return in ac
+46: LDA 7,-40(7)	* relative jump to output function entry
+47: LD 5,0(5)	 * pop current frame
 * <- CallExp
-51: ST 0,-5(5)	load user input
+48: ST 0,-5(5)	load user input
 * -> CallExp
-52: LDC 0,111(0)	load const(111) <- constant
-53: ST 0,-5(5)	load const(111) <- constant
-54: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-55: ST 5,-5(5)	* store current fp
-56: LDA 5,-5(5)	* push new frame
-57: LDA 0,1(7)	* save return in ac
-58: LDA 7,-52(7)	* relative jump to output function entry
-59: LD 5,0(5)	 * pop current frame
+49: LDC 0,111(0)	load const(111) <- constant
+50: ST 0,-7(5)	load const(111) <- constant
+51: ST 5,-5(5)	* store current fp
+52: LDA 5,-5(5)	* push new frame
+53: LDA 0,1(7)	* save return in ac
+54: LDA 7,-48(7)	* relative jump to output function entry
+55: LD 5,0(5)	 * pop current frame
 * <- CallExp
-60: ST 0,-5(5)	load user input
+56: ST 0,-5(5)	load user input
 * -> SimpleVar
-61: LD 0,-2(5)	load value of var into AC
-62: ST 0,-5(5)	 <- constant
+57: LD 0,-2(5)	load value of var into AC
+58: ST 0,-5(5)	 <- constant
 * <- SimpleVar
-63: LD 0,-5(5)	load return value into ac
-64: LD 7,-1(5)	return back to the caller
-24: JEQ 0,41(7)	jump to else
+59: LD 0,-5(5)	load return value into ac
+60: LD 7,-1(5)	return back to the caller
+24: JEQ 0,37(7)	jump to else
 * -> CallExp
-66: LDC 0,999(0)	load const(999) <- constant
-67: ST 0,-5(5)	load const(999) <- constant
-68: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-69: ST 5,-5(5)	* store current fp
-70: LDA 5,-5(5)	* push new frame
-71: LDA 0,1(7)	* save return in ac
-72: LDA 7,-66(7)	* relative jump to output function entry
-73: LD 5,0(5)	 * pop current frame
+62: LDC 0,999(0)	load const(999) <- constant
+63: ST 0,-7(5)	load const(999) <- constant
+64: ST 5,-5(5)	* store current fp
+65: LDA 5,-5(5)	* push new frame
+66: LDA 0,1(7)	* save return in ac
+67: LDA 7,-61(7)	* relative jump to output function entry
+68: LD 5,0(5)	 * pop current frame
 * <- CallExp
-74: ST 0,-5(5)	load user input
+69: ST 0,-5(5)	load user input
 * -> CallExp
 * -> SimpleVar
-75: LD 0,-2(5)	load value of var into AC
-76: ST 0,-5(5)	 <- constant
+70: LD 0,-2(5)	load value of var into AC
+71: ST 0,-7(5)	 <- constant
 * <- SimpleVar
-77: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-78: ST 5,-5(5)	* store current fp
-79: LDA 5,-5(5)	* push new frame
-80: LDA 0,1(7)	* save return in ac
-81: LDA 7,-75(7)	* relative jump to output function entry
-82: LD 5,0(5)	 * pop current frame
+72: ST 5,-5(5)	* store current fp
+73: LDA 5,-5(5)	* push new frame
+74: LDA 0,1(7)	* save return in ac
+75: LDA 7,-69(7)	* relative jump to output function entry
+76: LD 5,0(5)	 * pop current frame
 * <- CallExp
-83: ST 0,-5(5)	load user input
+77: ST 0,-5(5)	load user input
 * -> CallExp
 * -> SimpleVar
-84: LD 0,-3(5)	load value of var into AC
-85: ST 0,-5(5)	 <- constant
+78: LD 0,-3(5)	load value of var into AC
+79: ST 0,-7(5)	 <- constant
 * <- SimpleVar
-86: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-87: ST 5,-5(5)	* store current fp
-88: LDA 5,-5(5)	* push new frame
-89: LDA 0,1(7)	* save return in ac
-90: LDA 7,-84(7)	* relative jump to output function entry
-91: LD 5,0(5)	 * pop current frame
+80: ST 5,-5(5)	* store current fp
+81: LDA 5,-5(5)	* push new frame
+82: LDA 0,1(7)	* save return in ac
+83: LDA 7,-77(7)	* relative jump to output function entry
+84: LD 5,0(5)	 * pop current frame
 * <- CallExp
-92: ST 0,-5(5)	load user input
+85: ST 0,-5(5)	load user input
 * -> CallExp
 * -> SimpleVar
-93: LD 0,-2(5)	load value of var into AC
-94: ST 0,-6(5)	 <- constant
+86: LD 0,-2(5)	load value of var into AC
+87: ST 0,-8(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-95: LD 0,-2(5)	load value of var into AC
-96: ST 0,-9(5)	 <- constant
+88: LD 0,-2(5)	load value of var into AC
+89: ST 0,-11(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-97: LD 0,-3(5)	load value of var into AC
-98: ST 0,-10(5)	 <- constant
+90: LD 0,-3(5)	load value of var into AC
+91: ST 0,-12(5)	 <- constant
 * <- SimpleVar
-99: LD 0,-9(5)	load lhs value into ac
-100: LD 1,-10(5)	load rhs value into ac1
-101: DIV 0,0,1	div values of ac and ac1 into ac
-102: ST 0,-8(5)	storing rhs constant into address of lhs
+92: LD 0,-11(5)	load lhs value into ac
+93: LD 1,-12(5)	load rhs value into ac1
+94: DIV 0,0,1	div values of ac and ac1 into ac
+95: ST 0,-10(5)	storing rhs constant into address of lhs
 * -> SimpleVar
-103: LD 0,-3(5)	load value of var into AC
-104: ST 0,-9(5)	 <- constant
+96: LD 0,-3(5)	load value of var into AC
+97: ST 0,-11(5)	 <- constant
 * <- SimpleVar
-105: LD 0,-8(5)	load lhs value into ac
-106: LD 1,-9(5)	load rhs value into ac1
-107: MUL 0,0,1	mul values of ac and ac1 into ac
-108: ST 0,-7(5)	storing rhs constant into address of lhs
-109: LD 0,-6(5)	load lhs value into ac
-110: LD 1,-7(5)	load rhs value into ac1
-111: SUB 0,0,1	sub values of ac and ac1 into ac
-112: ST 0,-5(5)	storing rhs constant into address of lhs
-113: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
+98: LD 0,-10(5)	load lhs value into ac
+99: LD 1,-11(5)	load rhs value into ac1
+100: MUL 0,0,1	mul values of ac and ac1 into ac
+101: ST 0,-9(5)	storing rhs constant into address of lhs
+102: LD 0,-8(5)	load lhs value into ac
+103: LD 1,-9(5)	load rhs value into ac1
+104: SUB 0,0,1	sub values of ac and ac1 into ac
+105: ST 0,-7(5)	storing rhs constant into address of lhs
+106: ST 5,-5(5)	* store current fp
+107: LDA 5,-5(5)	* push new frame
+108: LDA 0,1(7)	* save return in ac
+109: LDA 7,-103(7)	* relative jump to output function entry
+110: LD 5,0(5)	 * pop current frame
+* <- CallExp
+111: ST 0,-5(5)	load user input
+* -> CallExp
+112: LDC 0,999(0)	load const(999) <- constant
+113: ST 0,-7(5)	load const(999) <- constant
 114: ST 5,-5(5)	* store current fp
 115: LDA 5,-5(5)	* push new frame
 116: LDA 0,1(7)	* save return in ac
@@ -168,147 +170,118 @@
 * -> CallExp
 * -> SimpleVar
 122: LD 0,-3(5)	load value of var into AC
-123: ST 0,-7(5)	 <- constant
-* <- SimpleVar
-124: ST 0,-9(5)	Storing value of arg 1 into (-7)fp
-* -> SimpleVar
-125: LD 0,-2(5)	load value of var into AC
-126: ST 0,-8(5)	 <- constant
+123: ST 0,-9(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-127: LD 0,-2(5)	load value of var into AC
-128: ST 0,-11(5)	 <- constant
+124: LD 0,-2(5)	load value of var into AC
+125: ST 0,-11(5)	 <- constant
 * <- SimpleVar
 * -> SimpleVar
-129: LD 0,-3(5)	load value of var into AC
-130: ST 0,-12(5)	 <- constant
+126: LD 0,-2(5)	load value of var into AC
+127: ST 0,-14(5)	 <- constant
 * <- SimpleVar
-131: LD 0,-11(5)	load lhs value into ac
-132: LD 1,-12(5)	load rhs value into ac1
-133: DIV 0,0,1	div values of ac and ac1 into ac
-134: ST 0,-10(5)	storing rhs constant into address of lhs
 * -> SimpleVar
-135: LD 0,-3(5)	load value of var into AC
-136: ST 0,-11(5)	 <- constant
+128: LD 0,-3(5)	load value of var into AC
+129: ST 0,-15(5)	 <- constant
 * <- SimpleVar
-137: LD 0,-10(5)	load lhs value into ac
-138: LD 1,-11(5)	load rhs value into ac1
-139: MUL 0,0,1	mul values of ac and ac1 into ac
-140: ST 0,-9(5)	storing rhs constant into address of lhs
-141: LD 0,-8(5)	load lhs value into ac
-142: LD 1,-9(5)	load rhs value into ac1
-143: SUB 0,0,1	sub values of ac and ac1 into ac
-144: ST 0,-7(5)	storing rhs constant into address of lhs
-145: ST 0,-10(5)	Storing value of arg 0 into (-8)fp
-146: ST 5,-7(5)	* store current fp
-147: LDA 5,-7(5)	* push new frame
-148: LDA 0,1(7)	* save return in ac
-149: LDA 7,-138(7)	* relative jump to function entry
-150: LD 5,0(5)	 * pop current frame
+130: LD 0,-14(5)	load lhs value into ac
+131: LD 1,-15(5)	load rhs value into ac1
+132: DIV 0,0,1	div values of ac and ac1 into ac
+133: ST 0,-13(5)	storing rhs constant into address of lhs
+* -> SimpleVar
+134: LD 0,-3(5)	load value of var into AC
+135: ST 0,-14(5)	 <- constant
+* <- SimpleVar
+136: LD 0,-13(5)	load lhs value into ac
+137: LD 1,-14(5)	load rhs value into ac1
+138: MUL 0,0,1	mul values of ac and ac1 into ac
+139: ST 0,-12(5)	storing rhs constant into address of lhs
+140: LD 0,-11(5)	load lhs value into ac
+141: LD 1,-12(5)	load rhs value into ac1
+142: SUB 0,0,1	sub values of ac and ac1 into ac
+143: ST 0,-10(5)	storing rhs constant into address of lhs
+144: ST 5,-7(5)	* store current fp
+145: LDA 5,-7(5)	* push new frame
+146: LDA 0,1(7)	* save return in ac
+147: LDA 7,-136(7)	* relative jump to function entry
+148: LD 5,0(5)	 * pop current frame
 * <- CallExp
-151: ST 0,-7(5)	load user input
-152: LD 0,-6(5)	load address of lhs into ac
-153: LD 1,-7(5)	load rhs constant into ac1
-154: ST 1,0(0)	storing rhs constant into address of lhs
-155: ST 1,-4(5)	storing rhs constant into offet of assignExp
-* -> CallExp
+149: ST 0,-7(5)	load user input
+150: LD 0,-6(5)	load address of lhs into ac
+151: LD 1,-7(5)	load rhs constant into ac1
+152: ST 1,0(0)	storing rhs constant into address of lhs
+153: ST 1,-4(5)	storing rhs constant into offet of assignExp
 * -> SimpleVar
-156: LD 0,-4(5)	load value of var into AC
-157: ST 0,-5(5)	 <- constant
+154: LD 0,-4(5)	load value of var into AC
+155: ST 0,-5(5)	 <- constant
 * <- SimpleVar
-158: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-159: ST 5,-5(5)	* store current fp
-160: LDA 5,-5(5)	* push new frame
-161: LDA 0,1(7)	* save return in ac
-162: LDA 7,-156(7)	* relative jump to output function entry
-163: LD 5,0(5)	 * pop current frame
-* <- CallExp
-164: ST 0,-5(5)	load user input
-* -> CallExp
-165: LDC 0,999(0)	load const(999) <- constant
-166: ST 0,-5(5)	load const(999) <- constant
-167: ST 0,-7(5)	Storing value of arg 1 into (-5)fp
-168: ST 5,-5(5)	* store current fp
-169: LDA 5,-5(5)	* push new frame
-170: LDA 0,1(7)	* save return in ac
-171: LDA 7,-165(7)	* relative jump to output function entry
-172: LD 5,0(5)	 * pop current frame
-* <- CallExp
-173: ST 0,-5(5)	load user input
-* -> SimpleVar
-174: LD 0,-4(5)	load value of var into AC
-175: ST 0,-5(5)	 <- constant
-* <- SimpleVar
-176: LD 0,-5(5)	load return value into ac
-177: LD 7,-1(5)	return back to the caller
-65: LDA 7,112(7)	unconditional jump to end
+156: LD 0,-5(5)	load return value into ac
+157: LD 7,-1(5)	return back to the caller
+61: LDA 7,96(7)	unconditional jump to end
 * <- if
-178: LD 7,-1(5)	return back to the caller
-11: LDA 7,167(7)	jump forward to finale
+158: LD 7,-1(5)	return back to the caller
+11: LDA 7,147(7)	jump forward to finale
 * processing function: main
-180: ST 0,-1(5)	save return address
+160: ST 0,-1(5)	save return address
 * -> SimpleVar
 * looking up id: x
-181: LDA 0,-2(5)	load id address
+161: LDA 0,-2(5)	load id address
 * <- id
-182: ST 0,-4(5)	op: push left
+162: ST 0,-4(5)	op: push left
 * <- SimpleVar
 * -> CallExp
-183: ST 5,-5(5)	* store current fp
-184: LDA 5,-5(5)	* push new frame
-185: LDA 0,1(7)	* save return in ac
-186: LDA 7,-183(7)	* relative jump to input function entry
-187: LD 5,0(5)	 * pop current frame
+163: ST 5,-5(5)	* store current fp
+164: LDA 5,-5(5)	* push new frame
+165: LDA 0,1(7)	* save return in ac
+166: LDA 7,-163(7)	* relative jump to input function entry
+167: LD 5,0(5)	 * pop current frame
 * <- CallExp
-188: ST 0,-5(5)	load user input
-189: LD 0,-4(5)	load address of lhs into ac
-190: LD 1,-5(5)	load rhs constant into ac1
-191: ST 1,0(0)	storing rhs constant into address of lhs
-192: ST 1,-2(5)	storing rhs constant into offet of assignExp
+168: ST 0,-5(5)	load user input
+169: LD 0,-4(5)	load address of lhs into ac
+170: LD 1,-5(5)	load rhs constant into ac1
+171: ST 1,0(0)	storing rhs constant into address of lhs
+172: ST 1,-2(5)	storing rhs constant into offet of assignExp
 * -> SimpleVar
 * looking up id: y
-193: LDA 0,0(6)	load id address
+173: LDA 0,0(6)	load id address
 * <- id
-194: ST 0,-4(5)	op: push left
+174: ST 0,-4(5)	op: push left
 * <- SimpleVar
-195: LDC 0,10(0)	load const(10) <- constant
-196: ST 0,-5(5)	load const(10) <- constant
-197: LD 0,-4(5)	load address of lhs into ac
-198: LD 1,-5(5)	load rhs constant into ac1
-199: ST 1,0(0)	storing rhs constant into address of lhs
-200: ST 1,0(6)	storing rhs constant into offet of assignExp
+175: LDC 0,10(0)	load const(10) <- constant
+176: ST 0,-5(5)	load const(10) <- constant
+177: LD 0,-4(5)	load address of lhs into ac
+178: LD 1,-5(5)	load rhs constant into ac1
+179: ST 1,0(0)	storing rhs constant into address of lhs
+180: ST 1,0(6)	storing rhs constant into offet of assignExp
 * -> CallExp
 * -> CallExp
 * -> SimpleVar
-201: LD 0,-2(5)	load value of var into AC
-202: ST 0,-3(5)	 <- constant
+181: LD 0,-2(5)	load value of var into AC
+182: ST 0,-7(5)	 <- constant
 * <- SimpleVar
-203: ST 0,-5(5)	Storing value of arg 1 into (-3)fp
 * -> SimpleVar
-204: LD 0,0(6)	load value of var into AC
-205: ST 0,-3(5)	 <- constant
+183: LD 0,0(6)	load value of var into AC
+184: ST 0,-8(5)	 <- constant
 * <- SimpleVar
-206: ST 0,-6(5)	Storing value of arg 0 into (-4)fp
-207: ST 5,-3(5)	* store current fp
-208: LDA 5,-3(5)	* push new frame
-209: LDA 0,1(7)	* save return in ac
-210: LDA 7,-199(7)	* relative jump to function entry
-211: LD 5,0(5)	 * pop current frame
+185: ST 5,-5(5)	* store current fp
+186: LDA 5,-5(5)	* push new frame
+187: LDA 0,1(7)	* save return in ac
+188: LDA 7,-177(7)	* relative jump to function entry
+189: LD 5,0(5)	 * pop current frame
 * <- CallExp
-212: ST 0,-3(5)	load user input
-213: ST 0,-5(5)	Storing value of arg 1 into (-3)fp
-214: ST 5,-3(5)	* store current fp
-215: LDA 5,-3(5)	* push new frame
-216: LDA 0,1(7)	* save return in ac
-217: LDA 7,-211(7)	* relative jump to output function entry
-218: LD 5,0(5)	 * pop current frame
+190: ST 0,-5(5)	load user input
+191: ST 5,-3(5)	* store current fp
+192: LDA 5,-3(5)	* push new frame
+193: LDA 0,1(7)	* save return in ac
+194: LDA 7,-188(7)	* relative jump to output function entry
+195: LD 5,0(5)	 * pop current frame
 * <- CallExp
-219: ST 0,-3(5)	load user input
-220: LD 7,-1(5)	return back to the caller
-179: LDA 7,41(7)	jump forward to finale
-221: ST 5,-1(5)	push ofp
-222: LDA 5,-1(5)	push frame
-223: LDA 0,1(7)	load ac with ret ptr
-224: LDA 7,-45(7)	jump to main loc
-225: LD 5,0(5)	pop frame
-226: HALT 0,0,0	
+196: ST 0,-3(5)	load user input
+197: LD 7,-1(5)	return back to the caller
+159: LDA 7,38(7)	jump forward to finale
+198: ST 5,-1(5)	push ofp
+199: LDA 5,-1(5)	push frame
+200: LDA 0,1(7)	load ac with ret ptr
+201: LDA 7,-42(7)	jump to main loc
+202: LD 5,0(5)	pop frame
+203: HALT 0,0,0	

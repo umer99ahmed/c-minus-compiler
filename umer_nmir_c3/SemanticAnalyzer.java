@@ -11,6 +11,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
   ArrayList<String> symbolErrors;
   final static int SPACES = 4;
 
+
   public SemanticAnalyzer() {
     table = new HashMap<String, ArrayList<NodeType>>();
     symbolErrors = new ArrayList<String>();
@@ -47,9 +48,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
     // C3: adding nestLevel
     if (node.def instanceof VarDec) {
       if (node.level > 1) {
-          ((VarDec) node.def).nestLevel = 1;
+        ((VarDec) node.def).nestLevel = 1;
       } else {
-          ((VarDec) node.def).nestLevel = 0;
+        ((VarDec) node.def).nestLevel = 0;
       }
     }
     vars.add(node);
@@ -226,6 +227,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 
   public void visit(DecList decList, int level, boolean isAddr) {
+    DecList tempDL = decList;
     indent(level);
     System.out.println("Entering the global scope: ");
     // insert input
@@ -254,6 +256,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     System.out.println("Leaving the global scope\n");
 
+    if (symbolErrors.size() > 0) {
+      tempDL.hasSemanticErr = true;
+    }
     symbolErrors.forEach(error -> {
       System.err.println(error);
     });
@@ -587,7 +592,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
     } else {
       ArrayList<NodeType> vars = table.get(var.name);
       NodeType dec = vars.get(vars.size() - 1);
-      var.relatedDef = (SimpleDec) dec.def;
+      if (dec.def instanceof SimpleDec) {
+        var.relatedDef = (SimpleDec) dec.def;
+      } else {
+        var.relatedDef = (ArrayDec) dec.def;
+      }
     }
   }
 

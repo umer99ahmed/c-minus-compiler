@@ -1,0 +1,22 @@
+/*
+    calculates the factorial of a usen input
+    Features:
+        - Arithmetic & assignment
+        - Control Stuctures: while-loops
+        - Global and local int vars
+        - input()/output()
+*/
+int fac;
+void main(void) {
+  int x;
+
+  x = input();
+  fac = 1;
+
+  while (x > 1) {
+    fac = fac * x;
+    x = x - 1;
+  } 
+
+  output(fac);
+}

@@ -1,0 +1,22 @@
+/*
+    calculates the GCD of two inputs
+    Features:
+        - Arithmetic & assignment
+        - Control Stuctures: if-then-else
+        - Functions and recursions
+        - Global and local int vars
+        - input()/output()
+*/
+int y;
+
+int gcd(int u, int v) {
+  if (v == 0) return u;
+  else return gcd(v, u - u/v*v);
+}
+
+void main(void) {
+  int x;
+  x = input();
+  y = input();
+  output(gcd(x, y));
+}

@@ -11,17 +11,3 @@ void main(void) {
   y = 10;
   output(gcd(x, y));
 }
-
-/*
-
-x=5   y=10 
-
-gcd(u:5 v:10):
-  gcd(u:10, v:5):
-    gcd( u:5, v:0):
-      ->5
-    ->5
-  ->5
-->5
-
-*/

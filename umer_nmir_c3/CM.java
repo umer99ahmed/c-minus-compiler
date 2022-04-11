@@ -13,21 +13,30 @@ import absyn.*;
 class CM {
   public static boolean SHOW_TREE = false;
   public static boolean SHOW_SYM = false;
+  public static boolean SHOW_ASM = false;
+
 
   static public void main(String argv[]) {
     /* Start the parser */
     try {
 
       int filenameIndex = 0;
-      if (argv.length == 1) {
+      if (argv.length == 0) {
         System.err.println(
             "usage: CM -[FLAG] [FILEPATH]\n[FLAG]\ta : perform syntactic analysis and output an abstract syntax tree (.abs)\n\ts : perform type checking and output symbol tables (.sym)\n\t(default output syntax error)\n\n");
-      } else if (argv.length == 2) {
+      } else if (argv.length == 1) {
+          filenameIndex = 0;
+      }   
+      else if (argv.length == 2) {
 
         if (argv[0].equals("-a")) { // to-do: add -c for C3 here and below
           SHOW_TREE = true;
           filenameIndex = 1;
         } else if (argv[0].equals("-s")) {
+          SHOW_SYM = true;
+          filenameIndex = 1;
+        }else if (argv[0].equals("-c")){
+          SHOW_ASM = true;
           SHOW_SYM = true;
           filenameIndex = 1;
         } else {
@@ -63,13 +72,12 @@ class CM {
         result.accept(visitorSym, 0, false);
 
         // filename = noExtFilename + ".tm";
-        fileOutSym = new PrintStream( noExtFilename + ".tm");
-        System.setOut(fileOutSym);
-
-
-        System.err.println("code gerneration");
-        CodeGenerator cmcode = new CodeGenerator();
-        cmcode.visit(result);
+        if(SHOW_ASM && ((DecList) result).hasSemanticErr == false){
+          fileOutSym = new PrintStream( noExtFilename + ".tm");
+          System.setOut(fileOutSym);
+          CodeGenerator cmcode = new CodeGenerator();
+          cmcode.visit(result);
+        }
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */

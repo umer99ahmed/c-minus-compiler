@@ -1,0 +1,37 @@
+/*
+    Counts down to zero from a user provided number
+    Features:
+        - Nested blocks within functions
+        - Arithmetic & assignment
+        - Control Stuctures: if-then-else
+        - Functions/recursion
+        - nested blocks within functions
+        - local int vars
+        - input()/output()
+*/
+
+
+void count(int x) {
+  if (x == 0) return;
+  else{
+    output(x);
+    count(x-1);
+    return;
+  }
+}
+
+void main(void) {
+  int x;
+  x = input();
+  {
+      int x;
+      x = 1010101010;
+      output(x);
+  }
+  count(x);
+  {
+      int x;
+      x = 01010101010;
+      output(x);
+  }
+}

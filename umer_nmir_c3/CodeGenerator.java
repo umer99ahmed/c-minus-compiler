@@ -229,11 +229,20 @@ public class CodeGenerator implements AbsynVisitor {
   public void visit(ArrayDec dec, int offset, boolean isAddr) {
     System.err.println("ArrayDec(offset): " + dec.name + " " + offset);
 
+    // TODO: make sure array size > 0
+    // do we have to make sure array size < remaining space, or just size < 1023?
+    // can we declare with size 0 or is that a runtime error?
+
     if (dec.nestLevel == 0) {
+
       globalOffset -= dec.size.value;// -10
       dec.offset = globalOffset + 1;// -9
     } else {
-      dec.offset = offset - (dec.size.value + 1);
+      if (dec.size == null) {
+        dec.offset = offset;
+      } else {
+        dec.offset = offset - (dec.size.value + 1);
+      }
     }
 
 
@@ -285,12 +294,13 @@ public class CodeGenerator implements AbsynVisitor {
 
     while (varDecList != null) {
       if (varDecList.head != null) {
-        varDecList.head.accept(this, offset, isAddr);
-        if (varDecList.head instanceof ArrayDec) {
+        //varDecList.head.accept(this, offset, isAddr); // why does this work lol
+        if (varDecList.head instanceof ArrayDec && ((ArrayDec) varDecList.head).size != null) {
           offset -= ((ArrayDec) varDecList.head).size.value;
         } else {
           offset--;
         }
+        varDecList.head.accept(this, offset + 1, isAddr);
       }
       varDecList = varDecList.tail;
     }
@@ -308,7 +318,8 @@ public class CodeGenerator implements AbsynVisitor {
 
   public void visit(AssignExp exp, int offset, boolean isAddr) {// -2
 
-    System.err.println("AssignExp:");
+    System.err.println("AssignExp:(offset) " + offset);
+
     if (exp.lhs != null) {
       exp.lhs.accept(this, offset - 1, true);
     }
@@ -322,14 +333,25 @@ public class CodeGenerator implements AbsynVisitor {
     // 25: ST 1, 0(0)
     emitRM("ST", ac1, 0, ac, "storing rhs constant into address of lhs");
     // 26: ST 1, -3(5)
-    if (((SimpleVar) exp.lhs.variable).relatedDef.nestLevel == 0) {
-      int gpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
-      emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp");
-    } else {
-      int fpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
-      emitRM("ST", ac1, fpOffset, fp, "storing rhs constant into offet of assignExp");
-    }
-    // TODO: indexvar handling
+    emitRM("ST", ac1, offset, fp, "storing rhs constant into offet of assignExp");
+
+    // if (exp.lhs.variable instanceof SimpleVar) {
+    // if (((SimpleVar) exp.lhs.variable).relatedDef.nestLevel == 0) {
+    // int gpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
+    // emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp");
+    // } else {
+    // int fpOffset = ((SimpleVar) exp.lhs.variable).relatedDef.offset;
+    // emitRM("ST", ac1, fpOffset, fp, "storing rhs constant into offet of assignExp");
+    // }
+    // } else {
+    // if (((IndexVar) exp.lhs.variable).relatedDef.nestLevel == 0) {
+    // int gpOffset = ((IndexVar) exp.lhs.variable).relatedDef.offset;
+    // emitRM("ST", ac1, gpOffset, gp, "storing rhs constant into offet of assignExp");
+    // } else {
+    // int fpOffset = ((IndexVar) exp.lhs.variable).relatedDef.offset;
+    // emitRM("ST", ac1, fpOffset, fp, "storing rhs constant into offet of assignExp");
+    // }
+    // }
   }
 
   public void visit(WhileExp exp, int offset, boolean isAddr) {
@@ -508,12 +530,74 @@ public class CodeGenerator implements AbsynVisitor {
     }
   }
 
+  public void visit(IndexVar var, int offset, boolean isAddr) {
+    System.err.println("IndexVar: " + var.name);
+    emitComment("* -> IndexVar", false);
+
+    // TODO: check for index below 0 or above size - refer to slides
+    if (var.index != null) {
+      var.index.accept(this, offset - 1, false);
+    }
+    // ->-3 &LHS
+    // ->-4 INT VALUE of index
+
+    // 5 4 3 2 1 0 [1]
+    int reg = 0;
+    reg = var.relatedDef.nestLevel == 0 ? gp : fp;
+
+    if (isAddr) {
+      emitComment("* looking up id: " + var.name, false);
+
+      // emitRM("LDA", ac, var.relatedDef.offset, reg, "load id address");
+      // emitRM("LD", ac1, offset - 1, fp, "load value of index into AC1");
+      // emitRO("ADD", ac, ac, ac1, "add values of & in ac and index ac1 into ac");
+      // emitComment("* <- id", false);
+      // emitRM("ST", ac, offset, fp, "op: push left");
+
+      emitRM("LDA", ac, var.relatedDef.offset, reg, "load id address");
+      emitRM("ST", ac, offset, fp, "store array addr");
+      emitRM("LD", ac, offset - 1, fp, "load value of index into ac");
+      emitRM("LD", ac1, offset, fp, "load array base addr");
+      emitRO("ADD", ac, ac1, ac, "add offset + index");// ac: -3
+      emitRM("ST", ac, offset, fp, "store arg val"); // fp + offset = value at fp + -9
+
+
+
+    } else {
+      // emitRM("LD", ac, var.relatedDef.offset, reg, "load value of var into AC");
+      // emitRM("ST", ac, offset, fp, " <- constant");
+      System.err.println("THE DEF OFFSET IS " + var.relatedDef.offset);
+
+      // 261: LDA 0,0(6) load id address
+      emitRM("LDA", 0, var.relatedDef.offset, reg, "load id address");
+      // 262: ST 0,-5(5) store array addr
+      emitRM("ST", ac, offset, fp, "store array addr");
+      // 263: LD 0,-2(5) load id value
+      emitRM("LD", ac, offset - 1, fp, "load value of index into ac");
+      // 267: LD 1,-5(5) load array base addr
+      emitRM("LD", ac1, offset, fp, "load array base addr");
+      // 268: SUB 0,1,0 base is at top of array
+      emitRO("ADD", ac, ac1, ac, "add offset + index");// ac: -3
+      // 269: LD 0,0(0) load value at array index //AHA
+      emitRM("LD", ac, 0, ac, "load value at array index ");
+      emitRM("ST", ac, offset, fp, "store arg val"); // fp + offset = value at fp + -9
+    }
+    emitComment("* -> IndexVar", false);
+  }
+
   public void visit(SimpleVar var, int offset, boolean isAddr) {
     System.err.println("SimpleVar:(offset) " + var.name + " " + offset);
     emitComment("* -> SimpleVar", false);
+    // boolean isArray = false;
+    // if (var.relatedDef instanceof ArrayDec) {
+    // isArray = true;
+    // }
 
     int reg = 0;
+    // if (var.relatedDef instanceof SimpleDec) {
     reg = var.relatedDef.nestLevel == 0 ? gp : fp;
+    // }
+
 
     if (isAddr) {
       emitComment("* looking up id: " + var.name, false);
@@ -525,9 +609,16 @@ public class CodeGenerator implements AbsynVisitor {
       emitRM("ST", ac, offset, fp, "op: push left");
     } else {
       // LD 0,-3(5) load id value
+      // if (isArray) {
+      // 235: LDA 0,0(6) load id address
+      // emitRM("LDA", ac, var.relatedDef.offset, reg, "load value of var into AC");
+      // } else {
       emitRM("LD", ac, var.relatedDef.offset, reg, "load value of var into AC");
-      // yest
+      // }
       emitRM("ST", ac, offset, fp, " <- constant");
+      // 235: LDA 0,0(6) load id address
+      // * <- id
+      // 236: ST 0,-5(5) store arg val
     }
     emitComment("* <- SimpleVar", false);
 
@@ -544,9 +635,31 @@ public class CodeGenerator implements AbsynVisitor {
     while (exp.args != null) {
 
       if (exp.args.head != null) {
-        exp.args.head.accept(this, offset + i, false);
-        emitRM("ST", ac, offset + initFO + i, fp,
-            "Storing value of arg " + (i + 1) + " into " + "(" + (offset + i) + ")fp");
+
+        // tryna handle the case where a whole array is sent as an arg
+        // if (exp.args.head instanceof VarExp) { // will this always be the case?
+        // Var t = ((VarExp)exp.args.head).variable;
+        // if (t instanceof SimpleVar){
+        // SimpleVar arr = (SimpleVar)t;
+        // if (arr.relatedDef instanceof ArrayDec) { // cant simplevar be related to array? change
+        // its relatedDef to VarDec?
+        // //i -= ((ArrayDec)arr.relatedDef).size.value; // should this be + 1 to point to the base
+        // address?
+        // }
+        // }
+        // }
+
+        // System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        // // System.err.println(exp.args.head.);
+        // System.err.println(exp.args.head.dtype.offset);
+        // System.err.println(exp.args.head.dtype.nestLevel);
+        // System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        // 235: LDA 0,0(6) load id address
+        // * <- id
+        // 236: ST 0,-5(5) store arg val
+        exp.args.head.accept(this, offset + initFO + i, false);
+        // emitRM("ST", ac, offset + initFO + i, fp,
+        // "Storing value of arg " + (i + 1) + " into " + "(" + (offset + i) + ")fp");
         i--;
       }
       exp.args = exp.args.tail;
@@ -611,15 +724,6 @@ public class CodeGenerator implements AbsynVisitor {
     // // 13: LD 7, -1(5) return back to the caller
     emitRM("LD", pc, -1, fp, "return back to the caller");
 
-  }
-
-
-
-  public void visit(IndexVar var, int offset, boolean isAddr) {
-    System.err.println("IndexVar: " + var.name);
-    if (var.index != null) {
-      var.index.accept(this, offset, isAddr);
-    }
   }
 
 
