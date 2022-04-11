@@ -131,8 +131,8 @@
 * <- id
 92: ST 0,-5(5)	op: push left
 * <- SimpleVar
-93: LDC 0,101010101(0)	load const(101010101) <- constant
-94: ST 0,-6(5)	load const(101010101) <- constant
+93: LDC 0,1010101010(0)	load const(1010101010) <- constant
+94: ST 0,-6(5)	load const(1010101010) <- constant
 95: LD 0,-5(5)	load address of lhs into ac
 96: LD 1,-6(5)	load rhs constant into ac1
 97: ST 1,0(0)	storing rhs constant into address of lhs

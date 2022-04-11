@@ -45,6 +45,11 @@ class CM {
         }
       }
 
+      PrintStream dummyStream = new PrintStream(new OutputStream(){
+          public void write(int b) {
+              // NO-OP
+          }
+      });
 
       parser p = new parser(new Lexer(new FileReader(argv[filenameIndex])));
       StringBuilder filename =
@@ -63,9 +68,13 @@ class CM {
         result.accept(visitorAbs, 0, false);
       }
       if (SHOW_SYM && result != null && ((DecList) result).hasSyntacticErr == false) {
-        filename.append(".sym");
-        PrintStream fileOutSym = new PrintStream(filename.toString());
-        System.setOut(fileOutSym);
+        if(!SHOW_ASM){
+          filename.append(".sym");
+          PrintStream fileOutSym = new PrintStream(filename.toString());
+          System.setOut(fileOutSym);
+        }else{
+          System.setOut(dummyStream);
+        }
 
         System.out.println("The semantic analysis annotated tree:");
         SemanticAnalyzer visitorSym = new SemanticAnalyzer();
@@ -73,8 +82,8 @@ class CM {
 
         // filename = noExtFilename + ".tm";
         if(SHOW_ASM && ((DecList) result).hasSemanticErr == false){
-          fileOutSym = new PrintStream( noExtFilename + ".tm");
-          System.setOut(fileOutSym);
+          PrintStream fileOutSym2 = new PrintStream( noExtFilename + ".tm");
+          System.setOut(fileOutSym2);
           CodeGenerator cmcode = new CodeGenerator();
           cmcode.visit(result);
         }

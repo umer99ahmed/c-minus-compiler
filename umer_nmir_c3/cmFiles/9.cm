@@ -1,0 +1,29 @@
+/*
+    lets users access array of squares of 0-9 halts if user enters index out of range
+    Features:
+        - Runtime errors index out of range
+        - Arrays
+        - Arithmetic & assignment
+        - Control Stuctures:while-loops
+        - Functions
+        - Global and local int vars
+        - input()/output()
+*/
+
+int x[10];
+
+void main(void){
+    int i;
+    int j; 
+    i=0;
+    j=0;
+    while(i<10){
+        x[i]= i*i;
+        i =i+1;
+    }
+
+    while(j != 404){
+        j = input();
+        output(x[j]);
+    }
+}

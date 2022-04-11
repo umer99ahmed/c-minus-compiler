@@ -51,8 +51,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   void emitRM_Abs(String op, int r, int a, String comment) {
-    // fprintf( code, "%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc );
-    // fprintf( code, "\t%s\n", c );
     System.out.print(emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + pc + ")");
     System.out.println("\t" + comment);
     ++emitLoc;
@@ -61,8 +59,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   private void emitRO(String op, int r, int s, int t, String comment) {
-    // fprintf( code, "%3d: %5s %d, %d, %d", emitLoc, op, r, s, t );
-    // fprintf( code, "\t%s\n", c );
     System.out.print(emitLoc + ": " + op + " " + r + "," + s + "," + t);
     System.out.println("\t" + comment);
     ++emitLoc;
@@ -71,9 +67,7 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   private void emitRM(String op, int r, int d, int s, String comment) {
-    // System.err.println( "%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s );
     System.out.print(emitLoc + ": " + op + " " + r + "," + d + "(" + s + ")");
-    // System.err.println( "\t%s\n", c );
     System.out.println("\t" + comment);
     ++emitLoc;
     if (highEmitLoc < emitLoc)
@@ -81,7 +75,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(Absyn trees) { // wrapper for post-order traversal
-    System.err.println("CODE GENERATION START!");
     emitComment("* Standard prelude:", false);
     // generate the prelude
     // 0: LD 6, 0(0) load gp with maxaddr
@@ -144,7 +137,6 @@ public class CodeGenerator implements AbsynVisitor {
   } // implement all visit methods in AbsynVisitor
 
   public void visit(DecList decs, int offset, boolean isAddress) {
-    System.err.println("CODE GENERATION DECLIST!");
     while (decs != null) {
       if (decs.head != null) {
         decs.head.accept(this, offset, isAddress);
@@ -155,8 +147,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(FunctionDec dec, int offset, boolean isAddr) {
-    System.err.println("FunctionDec(offset): " + offset);
-
 
     System.out.println("* processing function: " + dec.func);
     // System.out.print("12: ST 0, -1(5) save return address\n13: LD 7, -1(5) return back to the
@@ -207,8 +197,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(SimpleDec dec, int offset, boolean isAddr) {
-    // TODO: how do we set nestLevel? dec.offset would depend on that?
-    System.err.println("SimpleDec(offset): " + dec.name + " " + offset);
     // dec.nestLevel = NEST_LEVEL;
     if (dec.nestLevel == 0) {
       dec.offset = globalOffset;// 0
@@ -227,11 +215,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(ArrayDec dec, int offset, boolean isAddr) {
-    System.err.println("ArrayDec(offset): " + dec.name + " " + offset);
-
-    // TODO: make sure array size > 0
-    // do we have to make sure array size < remaining space, or just size < 1023?
-    // can we declare with size 0 or is that a runtime error?
 
     if (dec.nestLevel == 0) {
 
@@ -258,8 +241,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(CompoundExp exp, int offset, boolean isAddr) {
-    System.err.println("CompoundExp(offset): " + offset);
-
     if (exp.decs != null) {
       exp.decs.accept(this, offset, isAddr);
     }
@@ -277,7 +258,6 @@ public class CodeGenerator implements AbsynVisitor {
     if (lastDec != null) {
       offset = lastDec.offset - 1;
     }
-    // System.err.println("OFFSET BEFORE EXPS IN COMPOUNDEXP: " + offset);
 
     if (exp.exps != null) {
       exp.exps.accept(this, offset, isAddr);
@@ -290,7 +270,6 @@ public class CodeGenerator implements AbsynVisitor {
   public void visit(CompoundExp exp, int level, boolean isPreceded, boolean isAddr) {}
 
   public void visit(VarDecList varDecList, int offset, boolean isAddr) {
-    System.err.println("VarDecList(offset): " + offset);
 
     while (varDecList != null) {
       if (varDecList.head != null) {
@@ -304,7 +283,6 @@ public class CodeGenerator implements AbsynVisitor {
       }
       varDecList = varDecList.tail;
     }
-    System.err.println("OFFSET IN VARDECLIST AFTER ADDING DECS: " + offset);
   }
 
   public void visit(ExpList expList, int offset, boolean isAddr) {
@@ -317,8 +295,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(AssignExp exp, int offset, boolean isAddr) {// -2
-
-    System.err.println("AssignExp:(offset) " + offset);
 
     if (exp.lhs != null) {
       exp.lhs.accept(this, offset - 1, true);
@@ -381,7 +357,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(IfExp exp, int offset, boolean isAddr) {
-    System.err.println("IfExp:");
     emitComment("* -> if", false);
 
     if (exp.test != null) {
@@ -411,7 +386,6 @@ public class CodeGenerator implements AbsynVisitor {
 
 
   public void visit(OpExp exp, int offset, boolean isAddr) {
-    System.err.println("OpExp(offset): " + offset);
 
     if (exp.left != null) {
       exp.left.accept(this, offset - 1, false);
@@ -515,7 +489,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(IntExp exp, int offset, boolean isAddr) {
-    System.err.println("IntExp:(offset) " + exp.value + " " + offset);
     // 24: LDC 0,2(0) load const <- constant
     emitRM("LDC", ac, exp.value, 0, "load const(" + String.valueOf(exp.value) + ") <- constant");
     // 25: ST 0,-4(5) op: push left -> constant
@@ -524,14 +497,12 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(VarExp exp, int offset, boolean isAddr) {
-    System.err.println("VarExp: ");
     if (exp.variable != null) {
       exp.variable.accept(this, offset, isAddr);
     }
   }
 
   public void visit(IndexVar var, int offset, boolean isAddr) {
-    System.err.println("IndexVar: " + var.name);
     emitComment("* -> IndexVar", false);
 
     // TODO: check for index below 0 or above size - refer to slides
@@ -557,6 +528,9 @@ public class CodeGenerator implements AbsynVisitor {
       emitRM("LDA", ac, var.relatedDef.offset, reg, "load id address");
       emitRM("ST", ac, offset, fp, "store array addr");
       emitRM("LD", ac, offset - 1, fp, "load value of index into ac");
+      emitRM("JLT", ac, 1, pc, "halt if subscript < 0");
+      emitRM("LDA", 7, 1, 7, "absolute jump if not");
+      emitRO("HALT", 0, 0, 0, "");
       emitRM("LD", ac1, offset, fp, "load array base addr");
       emitRO("ADD", ac, ac1, ac, "add offset + index");// ac: -3
       emitRM("ST", ac, offset, fp, "store arg val"); // fp + offset = value at fp + -9
@@ -566,7 +540,6 @@ public class CodeGenerator implements AbsynVisitor {
     } else {
       // emitRM("LD", ac, var.relatedDef.offset, reg, "load value of var into AC");
       // emitRM("ST", ac, offset, fp, " <- constant");
-      System.err.println("THE DEF OFFSET IS " + var.relatedDef.offset);
 
       // 261: LDA 0,0(6) load id address
       emitRM("LDA", 0, var.relatedDef.offset, reg, "load id address");
@@ -575,18 +548,36 @@ public class CodeGenerator implements AbsynVisitor {
       // 263: LD 0,-2(5) load id value
       emitRM("LD", ac, offset - 1, fp, "load value of index into ac");
       // 267: LD 1,-5(5) load array base addr
+      //  23:    JLT  0,1(7) 	halt if subscript < 0
+      emitRM("JLT", ac, 1, pc, "halt if subscript < 0");
+      //  24:    LDA  7,1(7) 	absolute jump if not
+      emitRM("LDA", 7, 1, 7, "absolute jump if not");
+      //  25:   HALT  0,0,0 	halt if subscript < 0
+      emitRO("HALT", 0, 0, 0, "");
+
+      emitRM("LDC", ac1 , var.relatedDef.size.value-1 , 0, "size into ac1");
+      emitRO("SUB", ac, ac1, ac, "sub size - index");// ac: -3
+      emitRM("JLT", ac, 1, pc, "halt if subscript < 0");
+      emitRM("LDA", 7, 1, 7, "absolute jump if not");
+      emitRO("HALT", 0, 0, 0, "");
+      emitRM("LD", ac, offset - 1, fp, "load value of index into ac");
+
       emitRM("LD", ac1, offset, fp, "load array base addr");
       // 268: SUB 0,1,0 base is at top of array
       emitRO("ADD", ac, ac1, ac, "add offset + index");// ac: -3
       // 269: LD 0,0(0) load value at array index //AHA
       emitRM("LD", ac, 0, ac, "load value at array index ");
       emitRM("ST", ac, offset, fp, "store arg val"); // fp + offset = value at fp + -9
+
+
+//  22:     LD  0,-3(5) 	load id value
+// * <- id
+//  26:     LD  1,-9(5) 	load array base addr
     }
     emitComment("* -> IndexVar", false);
   }
 
   public void visit(SimpleVar var, int offset, boolean isAddr) {
-    System.err.println("SimpleVar:(offset) " + var.name + " " + offset);
     emitComment("* -> SimpleVar", false);
     // boolean isArray = false;
     // if (var.relatedDef instanceof ArrayDec) {
@@ -625,7 +616,6 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(CallExp exp, int offset, boolean isAddr) {
-    System.err.println("CallExp(offset): " + exp.func + " " + offset);
     emitComment("* -> CallExp", false);
     // if (exp.args != null) {
     // exp.args.accept(this, offset, isAddr);
@@ -636,24 +626,6 @@ public class CodeGenerator implements AbsynVisitor {
 
       if (exp.args.head != null) {
 
-        // tryna handle the case where a whole array is sent as an arg
-        // if (exp.args.head instanceof VarExp) { // will this always be the case?
-        // Var t = ((VarExp)exp.args.head).variable;
-        // if (t instanceof SimpleVar){
-        // SimpleVar arr = (SimpleVar)t;
-        // if (arr.relatedDef instanceof ArrayDec) { // cant simplevar be related to array? change
-        // its relatedDef to VarDec?
-        // //i -= ((ArrayDec)arr.relatedDef).size.value; // should this be + 1 to point to the base
-        // address?
-        // }
-        // }
-        // }
-
-        // System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-        // // System.err.println(exp.args.head.);
-        // System.err.println(exp.args.head.dtype.offset);
-        // System.err.println(exp.args.head.dtype.nestLevel);
-        // System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
         // 235: LDA 0,0(6) load id address
         // * <- id
         // 236: ST 0,-5(5) store arg val
@@ -687,16 +659,6 @@ public class CodeGenerator implements AbsynVisitor {
     // }
   }
 
-
-  // final static int SPACES = 4;
-
-  // private void indent(int level) {
-  // for (int i = 0; i < level * SPACES; i++)
-  // System.out.print(" ");
-  // }
-
-
-
   public void visit(NameTy typ, int offset, boolean isAddr) {
     // indent(level);
     if (typ.type == 0) {
@@ -708,14 +670,9 @@ public class CodeGenerator implements AbsynVisitor {
   }
 
   public void visit(NilExp exp, int offset, boolean isAddr) {
-    // indent(level);
-    System.err.println("NilExp: ");
   }
 
   public void visit(ReturnExp exp, int offset, boolean isAddr) {
-    // indent(level);
-    // System.err.println("ReturnExp: ");
-    // level++;
     if (exp.exp != null) {
       exp.exp.accept(this, offset, isAddr);
     }

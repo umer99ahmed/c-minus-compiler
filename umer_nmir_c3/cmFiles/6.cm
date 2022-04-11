@@ -1,0 +1,21 @@
+/*
+  This program contains the following errors:
+    - Invalid param provided in param list, for example "int func2(var0, int var1, int list[]){", var0 is invalid
+    - invalid argument(s) passed to function call, for example "print(1-2;);" 1-2; is not valid arg
+    - Invalid expression within while test condition, for example "while(i< )" is invalid syntax
+*/  
+
+
+/* This will result in a error for VarDecList -> Invalid param provided in param list  */
+int func2(var0, int var1, int list[]){
+    
+    /*Invalid function name provided for function call NVM*/
+   print(1-2;);
+
+   /*Invalid expression within while condition*/
+    while(i< ){
+        print(i);
+    }
+    return 0;
+
+}

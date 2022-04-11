@@ -594,7 +594,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
       NodeType dec = vars.get(vars.size() - 1);
       if (dec.def instanceof SimpleDec) {
         var.relatedDef = (SimpleDec) dec.def;
-      } else {
+      } else if (dec.def instanceof ArrayDec)  {
         var.relatedDef = (ArrayDec) dec.def;
       }
     }
